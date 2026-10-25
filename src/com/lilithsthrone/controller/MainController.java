@@ -68,6 +68,7 @@ import com.lilithsthrone.game.dialogue.npcDialogue.elemental.ElementalDialogue;
 import com.lilithsthrone.game.dialogue.npcDialogue.offspring.GenericOffspringDialogue;
 import com.lilithsthrone.game.dialogue.places.dominion.cityHall.CityHall;
 import com.lilithsthrone.game.dialogue.places.dominion.cityHall.CityHallDemographics;
+import com.lilithsthrone.game.dialogue.places.dominion.lilayashome.LaundryDialogue;
 import com.lilithsthrone.game.dialogue.places.dominion.lilayashome.Library;
 import com.lilithsthrone.game.dialogue.places.dominion.lilayashome.LilayaDressingRoomDialogue;
 import com.lilithsthrone.game.dialogue.places.dominion.lilayashome.LilayaMilkingRoomDialogue;
@@ -1866,6 +1867,8 @@ public class MainController implements Initializable {
 			MiscController.initMapListeners(PhoneDialogue.worldTypeMap, true);
 		} else if (currentNode.equals(PhoneDialogue.WEAPON_CATALOGUE)) {
 			MiscController.initEncyclopediaWeaponListeners();
+		} else if (currentNode.equals(LaundryDialogue.LAUNDRY)) {
+			LaundryController.initListeners();
 		} else if (currentNode.equals(RoomPlayer.ROOM_SET_ALARM)) {
 			MiscController.initAlarmListeners();
 		} else if (currentNode.equals(ScarlettsShop.HELENAS_SHOP_CUSTOM_SLAVE_PERSONALITY)) {

@@ -253,7 +253,7 @@ public class RoomPlayer {
 				return new Response("Quick shower",
 						"Use your room's ensuite to take a quick shower."
 								+ "<br/>[style.italicsGood(Cleans <b>a maximum of "+Units.fluid(500)+"</b> of fluids from all orifices.)]"
-								+ "<br/>[style.italicsGood(This will clean <b>only</b> your currently equipped clothing.)]",
+								+ "<br/>[style.italicsDisabled(Your clothes are not washed. The machines beside the bathroom do that.)]",
 //								+ "<br/>[style.italicsMinorBad(This does <b>not</b> clean companions.)]",
 						AUNT_HOME_PLAYERS_ROOM_QUICK_SHOWER){
 					@Override
@@ -261,11 +261,11 @@ public class RoomPlayer {
 						List<NPC> charactersPresent = LilayaHomeGeneric.getSlavesAndOccupantsPresent();
 						slavesWashing = charactersPresent.stream().filter((npc) -> npc.hasSlaveJobSetting(SlaveJob.BEDROOM, SlaveJobSetting.BEDROOM_HELP_WASH)).collect(Collectors.toList());
 						for(GameCharacter npc : slavesWashing) {
-							npc.applyWash(true, true, StatusEffect.CLEANED_SHOWER, 120+30);
+							npc.applyBodyWash(true, StatusEffect.CLEANED_SHOWER, 120+30);
 						}
 
-						Main.game.getTextEndStringBuilder().append("<p style='text-align:center'><i>You leave your clothes outside of your bathroom so that they can be cleaned while you wash yourself...</i></p>");
-						Main.game.getTextEndStringBuilder().append(Main.game.getPlayer().applyWash(false, false, null, 240+30));
+						Main.game.getTextEndStringBuilder().append("<p style='text-align:center'><i>Your clothes stay where you left them.</i></p>");
+						Main.game.getTextEndStringBuilder().append(Main.game.getPlayer().applyBodyWash(false, null, 240+30));
 					}
 					@Override
 					public int getSecondsPassed() {
@@ -277,7 +277,7 @@ public class RoomPlayer {
 				return new Response("Thorough shower",
 						"Use your room's en-suite to take a shower, and spend some time thoroughly cleaning yourself."
 								+ "<br/>[style.italicsExcellent(This will clean <b>all</b> fluids out of all your orifices.)]"
-								+ "<br/>[style.italicsGood(This will clean <b>only</b> your currently equipped clothing.)]",
+								+ "<br/>[style.italicsDisabled(Your clothes are not washed. The machines beside the bathroom do that.)]",
 //								+ "<br/>[style.italicsMinorBad(This does <b>not</b> clean companions.)]",
 						AUNT_HOME_PLAYERS_ROOM_THOROUGH_SHOWER){
 					@Override
@@ -285,11 +285,11 @@ public class RoomPlayer {
 						List<NPC> charactersPresent = LilayaHomeGeneric.getSlavesAndOccupantsPresent();
 						slavesWashing = charactersPresent.stream().filter((npc) -> npc.hasSlaveJobSetting(SlaveJob.BEDROOM, SlaveJobSetting.BEDROOM_HELP_WASH)).collect(Collectors.toList());
 						for(GameCharacter npc : slavesWashing) {
-							npc.applyWash(true, true, StatusEffect.CLEANED_SHOWER, 240+30);
+							npc.applyBodyWash(true, StatusEffect.CLEANED_SHOWER, 240+30);
 						}
 						
-						Main.game.getTextEndStringBuilder().append("<p style='text-align:center'><i>You leave your clothes outside of your bathroom so that they can be cleaned while you wash yourself...</i></p>");
-						Main.game.getTextEndStringBuilder().append(Main.game.getPlayer().applyWash(true, false, StatusEffect.CLEANED_SHOWER, 240+30));
+						Main.game.getTextEndStringBuilder().append("<p style='text-align:center'><i>Your clothes stay where you left them.</i></p>");
+						Main.game.getTextEndStringBuilder().append(Main.game.getPlayer().applyBodyWash(true, StatusEffect.CLEANED_SHOWER, 240+30));
 					}
 					@Override
 					public int getSecondsPassed() {
@@ -301,7 +301,7 @@ public class RoomPlayer {
 				return new Response("Bath time",
 						"Use your room's en-suite to take a bath, and spend some time thoroughly cleaning yourself."
 								+ "<br/>[style.italicsExcellent(This will clean <b>all</b> fluids out of all your orifices.)]"
-								+ "<br/>[style.italicsExcellent(This will clean <b>all</b> clothing in your inventory.)]",
+								+ "<br/>[style.italicsDisabled(Your clothes are not washed. The machines beside the bathroom do that.)]",
 //								+ "<br/>[style.italicsMinorGood(This <b>does</b> clean companions.)]",
 						AUNT_HOME_PLAYERS_ROOM_BATH){
 					@Override
@@ -309,17 +309,22 @@ public class RoomPlayer {
 						List<GameCharacter> charactersPresent = new ArrayList<>(LilayaHomeGeneric.getSlavesAndOccupantsPresent());
 						slavesWashing = charactersPresent.stream().filter((npc) -> npc.hasSlaveJobSetting(SlaveJob.BEDROOM, SlaveJobSetting.BEDROOM_HELP_WASH)).collect(Collectors.toList());
 						for(GameCharacter npc : slavesWashing) {
-							npc.applyWash(true, true, StatusEffect.CLEANED_BATH, 240+30);
+							npc.applyBodyWash(true, StatusEffect.CLEANED_BATH, 240+30);
 						}
 						
-						Main.game.getTextEndStringBuilder().append("<p style='text-align:center'><i>You leave your clothes outside of your bathroom so that they can be cleaned while you wash yourself...</i></p>");
-						Main.game.getTextEndStringBuilder().append(Main.game.getPlayer().applyWash(true, true, StatusEffect.CLEANED_BATH, 240+30));
+						Main.game.getTextEndStringBuilder().append("<p style='text-align:center'><i>Your clothes stay where you left them.</i></p>");
+						Main.game.getTextEndStringBuilder().append(Main.game.getPlayer().applyBodyWash(true, StatusEffect.CLEANED_BATH, 240+30));
 					}
 					@Override
 					public int getSecondsPassed() {
 						return 30*60;
 					}
 				};
+
+			} else if(index==4) {
+				return new Response("Laundry",
+						"Load the washer and dryer in your ensuite. A cycle keeps running if you leave.",
+						LaundryDialogue.LAUNDRY);
 				
 			} else if(index==11) {
 				return new ResponseEffectsOnly(
@@ -2122,9 +2127,9 @@ public class RoomPlayer {
 		@Override
 		public void applyPreParsingEffects() {
 			for(GameCharacter npc : slavesWashing) {
-				npc.applyWash(true, true, StatusEffect.CLEANED_SHOWER, 240+30);
+				npc.applyBodyWash(true, StatusEffect.CLEANED_SHOWER, 240+30);
 			}
-			Main.game.getPlayer().applyWash(true, true, StatusEffect.CLEANED_SHOWER, 240+30);
+			Main.game.getPlayer().applyBodyWash(true, StatusEffect.CLEANED_SHOWER, 240+30);
 		}
 		@Override
 		public String getDescription() {
@@ -2269,9 +2274,9 @@ public class RoomPlayer {
 		@Override
 		public void applyPreParsingEffects() {
 			for(GameCharacter npc : slavesWashing) {
-				npc.applyWash(true, true, StatusEffect.CLEANED_BATH, 240+30);
+				npc.applyBodyWash(true, StatusEffect.CLEANED_BATH, 240+30);
 			}
-			Main.game.getPlayer().applyWash(true, true, StatusEffect.CLEANED_BATH, 240+30);
+			Main.game.getPlayer().applyBodyWash(true, StatusEffect.CLEANED_BATH, 240+30);
 		}
 		@Override
 		public String getDescription() {

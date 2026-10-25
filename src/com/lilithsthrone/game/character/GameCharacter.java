@@ -414,6 +414,12 @@ public abstract class GameCharacter implements XMLSaving {
 	protected boolean requiresAttributeStatusEffectCheck = true;
 	protected boolean requiresInventoryStatusEffectCheck = true;
 	private boolean refreshingFreshClothingStatus = false;
+	/** Seconds left over from the last 12-minute clothing soil tick. */
+	private int soilTickRemainder;
+	private int soilSweatFraction;
+	private int soilGrimeFraction;
+	private int soilMuskGroinFraction;
+	private int soilMuskOtherFraction;
 	
 	// Relationship stats:
 	/** String is character ID*/
@@ -844,6 +850,11 @@ public abstract class GameCharacter implements XMLSaving {
 			XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "captive", String.valueOf(captive));
 		}
 		XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "level", String.valueOf(this.getTrueLevel()));
+		saveSoilBank(doc, characterCoreInfo, "soilTickRemainder", soilTickRemainder);
+		saveSoilBank(doc, characterCoreInfo, "soilSweatFraction", soilSweatFraction);
+		saveSoilBank(doc, characterCoreInfo, "soilGrimeFraction", soilGrimeFraction);
+		saveSoilBank(doc, characterCoreInfo, "soilMuskGroinFraction", soilMuskGroinFraction);
+		saveSoilBank(doc, characterCoreInfo, "soilMuskOtherFraction", soilMuskOtherFraction);
 		XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "ageAppearanceDifference", String.valueOf(this.getAgeAppearanceDifference()));
 		XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "ageAppearanceAbsolute", String.valueOf(this.getAgeAppearanceAbsolute()));
 		XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "yearOfBirth", String.valueOf(this.getBirthday().getYear()));
@@ -1565,6 +1576,24 @@ public abstract class GameCharacter implements XMLSaving {
 		Element x = (Element) parentElement.getElementsByTagName(tagName).item(0);
 		return x != null ? x.getAttribute("value") : defaultValue;
 	}
+
+	private static void saveSoilBank(Document doc, Element parent, String tag, int value) {
+		if(value != 0) {
+			XMLUtil.createXMLElementWithValue(doc, parent, tag, String.valueOf(value));
+		}
+	}
+
+	private static int readSoilBank(Element element, String tag) {
+		String value = getValueFromElementWithTagName(element, tag, "0");
+		if(value == null || value.isEmpty()) {
+			return 0;
+		}
+		try {
+			return Integer.parseInt(value);
+		} catch(NumberFormatException ex) {
+			return 0;
+		}
+	}
 	
 	public static void loadGameCharacterVariablesFromXML(GameCharacter character, StringBuilder log, Element parentElement, Document doc, CharacterImportSetting... settings) {
 
@@ -1639,6 +1668,11 @@ public abstract class GameCharacter implements XMLSaving {
 		// Level:
 		character.setLevel(Integer.valueOf(((Element)element.getElementsByTagName("level").item(0)).getAttribute("value")));
 		Main.game.getCharacterUtils().appendToImportLog(log, "<br/>Set level: " + Integer.valueOf(((Element)element.getElementsByTagName("level").item(0)).getAttribute("value")));
+		character.soilTickRemainder = readSoilBank(element, "soilTickRemainder");
+		character.soilSweatFraction = readSoilBank(element, "soilSweatFraction");
+		character.soilGrimeFraction = readSoilBank(element, "soilGrimeFraction");
+		character.soilMuskGroinFraction = readSoilBank(element, "soilMuskGroinFraction");
+		character.soilMuskOtherFraction = readSoilBank(element, "soilMuskOtherFraction");
 		
 		// Age appearance difference:
 		try {
@@ -22068,6 +22102,30 @@ public abstract class GameCharacter implements XMLSaving {
 		
 		return sb.toString();
 	}
+
+	/**
+	 * Washes the body and leaves every garment as it was.
+	 * Home showers use this. Public arcane washers still use {@link #applyWash}.
+	 */
+	public String applyBodyWash(boolean washAllOrifices, AbstractStatusEffect effect, int statusEffectMinutes) {
+		StringBuilder sb = new StringBuilder();
+		
+		this.setHealth(this.getAttributeValue(Attribute.HEALTH_MAXIMUM));
+		this.setMana(this.getAttributeValue(Attribute.MANA_MAXIMUM));
+		
+		sb.append(this.washAllOrifices(washAllOrifices));
+		this.calculateStatusEffects(0);
+		this.cleanAllDirtySlots(true);
+		
+		if(effect!=null) {
+			this.removeStatusEffect(StatusEffect.CLEANED_SHOWER);
+			this.removeStatusEffect(StatusEffect.CLEANED_BATH);
+			this.removeStatusEffect(StatusEffect.CLEANED_SPA);
+			this.addStatusEffect(effect, statusEffectMinutes*60);
+		}
+		
+		return sb.toString();
+	}
 	
 	/**
 	 * @param drainAllFluids Pass in true to completely drain all fluids from all orifices.
@@ -24139,6 +24197,76 @@ public abstract class GameCharacter implements XMLSaving {
 		}
 		inventory.ageFreshScents(seconds);
 		refreshFreshClothingStatus();
+	}
+
+	/**
+	 * Worn clothes pick up sweat, grime, and musk. Clothes in a bag, on the floor, or in a machine do not.
+	 * Time is banked in 12-minute ticks so a short action is not thrown away.
+	 */
+	public void soilWornClothes(int seconds) {
+		if(seconds <= 0) {
+			return;
+		}
+		long banked = (long) soilTickRemainder + seconds;
+		int ticks = (int) (banked / 720);
+		soilTickRemainder = (int) (banked % 720);
+		if(ticks <= 0) {
+			return;
+		}
+
+		int cleanliness = Math.round(getAttributeValue(Attribute.CLEANLINESS));
+		if(cleanliness < 0) {
+			cleanliness = 0;
+		} else if(cleanliness > 100) {
+			cleanliness = 100;
+		}
+		int sweatTenthsPerTick = 10 + (100 - cleanliness) / 10;
+		int grimeTenthsPerTick = 6;
+		int muskGroinTenths = 0;
+		int muskOtherTenths = 0;
+		if(Main.game.isMuskContentEnabled()) {
+			float arousal = getAttributeValue(Attribute.AROUSAL);
+			if(arousal >= 75) {
+				muskGroinTenths = 24;
+				muskOtherTenths = 6;
+			} else if(arousal >= 25) {
+				muskGroinTenths = 12;
+				muskOtherTenths = 2;
+			}
+		}
+
+		long sweatBank = (long) soilSweatFraction + (long) ticks * sweatTenthsPerTick;
+		long grimeBank = (long) soilGrimeFraction + (long) ticks * grimeTenthsPerTick;
+		long muskGroinBank = (long) soilMuskGroinFraction + (long) ticks * muskGroinTenths;
+		long muskOtherBank = (long) soilMuskOtherFraction + (long) ticks * muskOtherTenths;
+		soilSweatFraction = (int) (sweatBank % 10);
+		soilGrimeFraction = (int) (grimeBank % 10);
+		soilMuskGroinFraction = (int) (muskGroinBank % 10);
+		soilMuskOtherFraction = (int) (muskOtherBank % 10);
+		int sweatAdd = (int) Math.min(100, sweatBank / 10);
+		int grimeAdd = (int) Math.min(100, grimeBank / 10);
+		int muskGroinAdd = (int) Math.min(100, muskGroinBank / 10);
+		int muskOtherAdd = (int) Math.min(100, muskOtherBank / 10);
+
+		for(AbstractClothing clothing : getClothingCurrentlyEquipped()) {
+			if(clothing == null) {
+				continue;
+			}
+			InventorySlot slot = clothing.getSlotEquippedTo();
+			if(slot == null || slot.isJewellery() || clothing.isMilkingEquipment()) {
+				continue;
+			}
+			int muskAdd = isMuskSlot(slot) ? muskGroinAdd : muskOtherAdd;
+			clothing.addSoilInPlace(sweatAdd, grimeAdd, muskAdd);
+		}
+		refreshFreshClothingStatus();
+	}
+
+	private static boolean isMuskSlot(InventorySlot slot) {
+		return slot == InventorySlot.GROIN
+				|| slot == InventorySlot.PENIS
+				|| slot == InventorySlot.VAGINA
+				|| slot == InventorySlot.ANUS;
 	}
 
 	/** The soonest worn wash scent, or -1 when nothing worn still smells fresh. */

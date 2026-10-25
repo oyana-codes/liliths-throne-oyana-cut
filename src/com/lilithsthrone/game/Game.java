@@ -280,6 +280,7 @@ import com.lilithsthrone.game.inventory.enchanting.ItemEffectType;
 import com.lilithsthrone.game.inventory.item.AbstractItem;
 import com.lilithsthrone.game.inventory.item.AbstractItemType;
 import com.lilithsthrone.game.inventory.item.ItemType;
+import com.lilithsthrone.game.inventory.laundry.LaundryMachine;
 import com.lilithsthrone.game.inventory.weapon.AbstractWeapon;
 import com.lilithsthrone.game.inventory.weapon.AbstractWeaponType;
 import com.lilithsthrone.game.inventory.weapon.WeaponType;
@@ -365,6 +366,8 @@ public class Game implements XMLSaving {
 	private Map<AbstractWorldType, World> worlds;
 	private long lastAutoSaveTime = 0;
 	private long secondsPassed; // Seconds passed since the start of the game
+	private LaundryMachine homeWasher;
+	private LaundryMachine homeDryer;
 	private LocalDateTime startingDate;
 	
 	private boolean renderAttributesSection;
@@ -848,6 +851,16 @@ public class Game implements XMLSaving {
 			Main.game.addEvent(new EventLogEntry("<style='color:"+PresetColour.GENERIC_TERRIBLE.toWebHexString()+";'>Partial Save Fail<b>", "coreInfo failure"), false);
 		}
 
+		try {
+			Element laundryNode = doc.createElement("homeLaundry");
+			game.appendChild(laundryNode);
+			Main.game.getHomeWasher().saveAsXML(laundryNode, doc);
+			Main.game.getHomeDryer().saveAsXML(laundryNode, doc);
+		} catch(Exception ex) {
+			System.err.println("homeLaundry saving failed!");
+			Main.game.addEvent(new EventLogEntry("<style='color:"+PresetColour.GENERIC_TERRIBLE.toWebHexString()+";'>Partial Save Fail<b>", "homeLaundry failure"), false);
+		}
+
 		Main.game.dialogueFlags.saveAsXML(game, doc);
 
 		try {
@@ -1047,6 +1060,19 @@ public class Game implements XMLSaving {
 					}
 				}
 				
+				Element laundryNode = (Element) gameElement.getElementsByTagName("homeLaundry").item(0);
+				if(laundryNode != null) {
+					NodeList machineNodes = laundryNode.getElementsByTagName("machine");
+					for(int i = 0; i < machineNodes.getLength(); i++) {
+						LaundryMachine machine = LaundryMachine.loadFromXML((Element) machineNodes.item(i), doc);
+						if(machine.getKind() == LaundryMachine.Kind.DRYER) {
+							Main.game.homeDryer = machine;
+						} else {
+							Main.game.homeWasher = machine;
+						}
+					}
+				}
+
 				Element savedEnforcersNode = (Element) gameElement.getElementsByTagName("savedEnforcers").item(0);
 				Main.game.savedEnforcers = new HashMap<>();
 				if(savedEnforcersNode!=null) {
@@ -2944,11 +2970,13 @@ public class Game implements XMLSaving {
 			System.out.println("companions done");
 		}
 
-		// Wash scent ages with the player, and with whoever is in the room. The rest of the city is left alone.
+		// Wash scent ages, and worn clothes pick up soil, for the player and whoever is in the room. The rest of the city is left alone.
 		if(secondsPassedThisTurn>0 && player!=null) {
 			player.ageFreshScents(secondsPassedThisTurn);
+			player.soilWornClothes(secondsPassedThisTurn);
 			for(NPC npc : getCharactersPresent()) {
 				npc.ageFreshScents(secondsPassedThisTurn);
+				npc.soilWornClothes(secondsPassedThisTurn);
 			}
 		}
 		
@@ -5068,6 +5096,22 @@ public class Game implements XMLSaving {
 	
 	public long getSecondsPassed() {
 		return secondsPassed;
+	}
+
+	public LaundryMachine getHomeWasher() {
+		if(homeWasher == null) {
+			homeWasher = new LaundryMachine(LaundryMachine.Kind.WASHER);
+		}
+		homeWasher.finishIfReady();
+		return homeWasher;
+	}
+
+	public LaundryMachine getHomeDryer() {
+		if(homeDryer == null) {
+			homeDryer = new LaundryMachine(LaundryMachine.Kind.DRYER);
+		}
+		homeDryer.finishIfReady();
+		return homeDryer;
 	}
 
 	public long getMinutesPassed() {

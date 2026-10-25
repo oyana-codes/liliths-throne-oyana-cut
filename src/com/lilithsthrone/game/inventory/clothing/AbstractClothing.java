@@ -93,6 +93,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 	private String freshScentId;
 	private int freshScentStrength;
 	private int freshScentSeconds;
+	/** Set by the washer. A wet garment cannot be worn until the dryer clears it. */
+	private boolean wet;
+	/** Detergent scent waiting for the dryer. It does not show, and its clock does not run, while the garment is wet. */
+	private String pendingFreshScentId;
+	private int pendingFreshScentSeconds;
 	private boolean unlocked;
 
 	private boolean enchantmentKnown;
@@ -124,6 +129,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		freshScentId = "";
 		freshScentStrength = 0;
 		freshScentSeconds = 0;
+		wet = false;
+		pendingFreshScentId = "";
+		pendingFreshScentSeconds = 0;
 		unlocked = false;
 
 		enchantmentKnown = true;
@@ -267,6 +275,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		freshScentId = "";
 		freshScentStrength = 0;
 		freshScentSeconds = 0;
+		wet = false;
+		pendingFreshScentId = "";
+		pendingFreshScentSeconds = 0;
 		unlocked = false;
 
 		enchantmentKnown = true;
@@ -313,6 +324,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		this.freshScentId = clothing.freshScentId;
 		this.freshScentStrength = clothing.freshScentStrength;
 		this.freshScentSeconds = clothing.freshScentSeconds;
+		this.wet = clothing.wet;
+		this.pendingFreshScentId = clothing.pendingFreshScentId == null ? "" : clothing.pendingFreshScentId;
+		this.pendingFreshScentSeconds = clothing.pendingFreshScentSeconds;
 
 		this.slotEquippedTo = clothing.getSlotEquippedTo();
 		this.unlocked = clothing.isUnlocked();
@@ -385,6 +399,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		sb.append(this.freshScentId);
 		sb.append(this.freshScentStrength);
 		sb.append(this.freshScentSeconds);
+		sb.append(this.wet?"w":"n");
+		sb.append(this.pendingFreshScentId);
+		sb.append(this.pendingFreshScentSeconds);
 		sb.append(this.isEnchantmentKnown()?"e":"n");
 		sb.append(this.getHiddenName().trim());
 		sb.append(this.isBadEnchantment()?"b":"n");
@@ -417,6 +434,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 						&& ((AbstractClothing)o).freshScentStrength==this.freshScentStrength
 						&& ((AbstractClothing)o).freshScentSeconds==this.freshScentSeconds
 						&& Objects.equals(((AbstractClothing)o).freshScentId, this.freshScentId)
+						&& ((AbstractClothing)o).wet==this.wet
+						&& ((AbstractClothing)o).pendingFreshScentSeconds==this.pendingFreshScentSeconds
+						&& Objects.equals(((AbstractClothing)o).pendingFreshScentId, this.pendingFreshScentId)
 						&& ((AbstractClothing)o).isEnchantmentKnown()==this.isEnchantmentKnown()
 						&& Objects.equals(((AbstractClothing)o).getHiddenName(), this.getHiddenName())
 						&& ((AbstractClothing)o).isBadEnchantment()==this.isBadEnchantment()
@@ -447,6 +467,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 						&& ((AbstractClothing)o).freshScentStrength==this.freshScentStrength
 						&& ((AbstractClothing)o).freshScentSeconds==this.freshScentSeconds
 						&& Objects.equals(((AbstractClothing)o).freshScentId, this.freshScentId)
+						&& ((AbstractClothing)o).wet==this.wet
+						&& ((AbstractClothing)o).pendingFreshScentSeconds==this.pendingFreshScentSeconds
+						&& Objects.equals(((AbstractClothing)o).pendingFreshScentId, this.pendingFreshScentId)
 						&& ((AbstractClothing)o).isEnchantmentKnown()==this.isEnchantmentKnown()
 						&& Objects.equals(((AbstractClothing)o).getHiddenName(), this.getHiddenName())
 						&& ((AbstractClothing)o).isBadEnchantment()==this.isBadEnchantment()
@@ -477,6 +500,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		result = 31 * result + this.freshScentStrength;
 		result = 31 * result + this.freshScentSeconds;
 		result = 31 * result + this.freshScentId.hashCode();
+		result = 31 * result + (this.wet ? 1 : 0);
+		result = 31 * result + this.pendingFreshScentSeconds;
+		result = 31 * result + (this.pendingFreshScentId==null ? 0 : this.pendingFreshScentId.hashCode());
 		result = 31 * result + (this.isEnchantmentKnown() ? 1 : 0);
 		if(this.getHiddenName()!=null) {
 			result = 31 * result + this.getHiddenName().hashCode();
@@ -547,6 +573,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		XMLUtil.addAttribute(doc, element, "freshScentId", this.freshScentId);
 		XMLUtil.addAttribute(doc, element, "freshScentStrength", String.valueOf(this.freshScentStrength));
 		XMLUtil.addAttribute(doc, element, "freshScentSeconds", String.valueOf(this.freshScentSeconds));
+		XMLUtil.addAttribute(doc, element, "wet", String.valueOf(this.wet));
+		XMLUtil.addAttribute(doc, element, "pendingFreshScentId", this.pendingFreshScentId==null ? "" : this.pendingFreshScentId);
+		XMLUtil.addAttribute(doc, element, "pendingFreshScentSeconds", String.valueOf(this.pendingFreshScentSeconds));
 		XMLUtil.addAttribute(doc, element, "enchantmentKnown", String.valueOf(this.isEnchantmentKnown()));
 		XMLUtil.addAttribute(doc, element, "hiddenName", this.getHiddenName());
 		
@@ -959,6 +988,10 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 					parentElement.getAttribute("freshScentId"),
 					parseConditionValue(parentElement.getAttribute("freshScentStrength")),
 					loadedFreshScentSeconds);
+			clothing.wet = Boolean.valueOf(parentElement.getAttribute("wet"));
+			String pendingScentId = parentElement.getAttribute("pendingFreshScentId");
+			clothing.pendingFreshScentId = pendingScentId==null ? "" : pendingScentId;
+			clothing.pendingFreshScentSeconds = parseFreshScentSeconds(parentElement.getAttribute("pendingFreshScentSeconds"));
 			clothing.setEnchantmentKnown(null, Boolean.valueOf(parentElement.getAttribute("enchantmentKnown")));
 
 			if(!parentElement.getAttribute("hiddenName").isEmpty()) {
@@ -1840,6 +1873,13 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 					}
 				}
 			}
+			if(wet) {
+				if(verbose) {
+					descriptionsList.add((plural?"They are":"It is")+" soaking wet, and "+(plural?"have":"has")+" to dry before "+(plural?"they":"it")+" can be worn.");
+				} else {
+					descriptionsList.add("[style.boldAqua(Soaking wet)]");
+				}
+			}
 			if(dirty) {
 				if(verbose) {
 					descriptionsList.add((plural?"They have":"It has")+" been [style.boldDirty(dirtied)] by sexual fluids!");
@@ -2402,6 +2442,37 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		return dirty;
 	}
 
+	public boolean isWet() {
+		return wet;
+	}
+
+	public void setWet(boolean wet) {
+		this.wet = wet;
+	}
+
+	public boolean hasPendingFreshScent() {
+		return pendingFreshScentSeconds > 0 && pendingFreshScentId != null && !pendingFreshScentId.isEmpty();
+	}
+
+	public String getPendingFreshScentId() {
+		return pendingFreshScentId == null ? "" : pendingFreshScentId;
+	}
+
+	public int getPendingFreshScentSeconds() {
+		return pendingFreshScentSeconds;
+	}
+
+	/** Stores a wash scent that starts once the garment is dry. An empty id clears it. */
+	public void setPendingFreshScent(String scentId, int seconds) {
+		if(scentId == null || scentId.isEmpty() || seconds <= 0) {
+			pendingFreshScentId = "";
+			pendingFreshScentSeconds = 0;
+			return;
+		}
+		pendingFreshScentId = scentId;
+		pendingFreshScentSeconds = clampFreshScentSeconds(seconds);
+	}
+
 	public int getSweat() {
 		return sweat;
 	}
@@ -2479,7 +2550,7 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		return dirty || sweat > 0 || grime > 0 || musk > 0 || hasFreshScent();
 	}
 
-	/** Clears fluids, soil, and fresh scent on this instance. Used by washing, which already owns the inventory entry. */
+	/** Clears fluids, soil, scent, and wetness on this instance. Used by washing, which already owns the inventory entry. */
 	public void clearConditionInPlace() {
 		dirty = false;
 		sweat = 0;
@@ -2488,6 +2559,25 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		freshScentId = "";
 		freshScentStrength = 0;
 		freshScentSeconds = 0;
+		wet = false;
+		pendingFreshScentId = "";
+		pendingFreshScentSeconds = 0;
+	}
+
+	/**
+	 * Adds sweat, grime, and musk on this instance without taking it off.
+	 * Worn clothes are a list, not a stack key, so this must not re-equip them.
+	 */
+	public void addSoilInPlace(int sweatAdd, int grimeAdd, int muskAdd) {
+		if(this.isMilkingEquipment() || (sweatAdd==0 && grimeAdd==0 && muskAdd==0)) {
+			return;
+		}
+		sweat = clampCondition(sweat + sweatAdd);
+		grime = clampCondition(grime + grimeAdd);
+		musk = clampCondition(musk + muskAdd);
+		if(sweat >= CONDITION_VISIBLE_AT || grime >= CONDITION_VISIBLE_AT || musk >= CONDITION_VISIBLE_AT) {
+			clearFreshScentFields();
+		}
 	}
 	
 	/**
@@ -3007,6 +3097,9 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 	}
 	
 	public Value<Boolean, String> isAbleToBeEquipped(GameCharacter clothingOwner, InventorySlot slot) {
+		if(wet) {
+			return new Value<>(false, UtilText.parse("[style.colourBad(It is soaking wet, and has to dry before it can be worn.)]"));
+		}
 		BodyPartClothingBlock block = slot.getBodyPartClothingBlock(clothingOwner);
 		Set<ItemTag> tags = this.getItemTags(slot);
 		

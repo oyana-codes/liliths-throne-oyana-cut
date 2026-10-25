@@ -23,6 +23,7 @@ import com.lilithsthrone.game.dialogue.utils.UtilText;
 import com.lilithsthrone.game.inventory.AbstractCoreItem;
 import com.lilithsthrone.game.inventory.AbstractCoreType;
 import com.lilithsthrone.game.inventory.ItemTag;
+import com.lilithsthrone.game.inventory.laundry.LaundrySupplies;
 import com.lilithsthrone.game.inventory.enchanting.AbstractItemEffectType;
 import com.lilithsthrone.game.inventory.enchanting.EnchantingUtils;
 import com.lilithsthrone.game.inventory.enchanting.ItemEffect;
@@ -44,6 +45,9 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 	protected List<ItemEffect> itemEffects;
 
 	private String overrideSpecialEffects;
+
+	/** Ounces or sheets left. -1 means a full bottle or box, or an item that is not a laundry supply. */
+	private int supplyRemaining = -1;
 	
 	public AbstractItem(AbstractItemType itemType) {
 		super(itemType.getName(false), itemType.getNamePlural(false), itemType.getSVGString(), itemType.getColourShades().get(0), itemType.getRarity(), null, itemType.getItemTags());
@@ -60,7 +64,8 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 			return (o instanceof AbstractItem)
 					&& ((AbstractItem)o).getItemType().equals(itemType)
 					&& ((AbstractItem)o).getEffects().equals(itemEffects)
-					&& ((AbstractItem)o).overrideSpecialEffects.equals(overrideSpecialEffects);
+					&& ((AbstractItem)o).overrideSpecialEffects.equals(overrideSpecialEffects)
+					&& ((AbstractItem)o).getSupplyRemaining()==this.getSupplyRemaining();
 		} else {
 			return false;
 		}
@@ -72,6 +77,7 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 		result = 31 * result + itemType.hashCode();
 		result = 31 * result + itemEffects.hashCode();
 		result = 31 * result + overrideSpecialEffects.hashCode();
+		result = 31 * result + getSupplyRemaining();
 		return result;
 	}
 	
@@ -83,6 +89,10 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 		XMLUtil.addAttribute(doc, element, "name", this.getName());
 		if(this.getColour(0)!=null) {
 			XMLUtil.addAttribute(doc, element, "colour", this.getColour(0).getId());
+		}
+		int remaining = this.getSupplyRemaining();
+		if(remaining >= 0) {
+			XMLUtil.addAttribute(doc, element, "supplyRemaining", String.valueOf(remaining));
 		}
 		
 		if(!this.overrideSpecialEffects.isEmpty()) {
@@ -138,6 +148,13 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 					parentElement.getAttribute("colour").isEmpty()
 						?PresetColour.GENERIC_ARCANE
 						:PresetColour.getColourFromId(parentElement.getAttribute("colour")));
+			String remainingAttribute = parentElement.getAttribute("supplyRemaining");
+			if(remainingAttribute!=null && !remainingAttribute.isEmpty()) {
+				try {
+					item.setSupplyRemaining(Integer.parseInt(remainingAttribute));
+				} catch(NumberFormatException ex) {
+				}
+			}
 			
 			if(!effectsToBeAdded.isEmpty()
 					&& (item.getItemType().getId().equals(ItemType.ELIXIR.getId()) || item.getItemType().getId().equals(ItemType.POTION.getId()) || item.getItemType().getId().equals(ItemType.ORIENTATION_HYPNO_WATCH.getId()))) {
@@ -155,6 +172,36 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 
 	public AbstractItemType getItemType() {
 		return itemType;
+	}
+
+	/**
+	 * Ounces left in a detergent bottle, or sheets left in a box.
+	 * A missing saved amount is a full bottle (128 fl oz) or a full box (40 sheets).
+	 * Other items return -1.
+	 */
+	public int getSupplyRemaining() {
+		if(supplyRemaining >= 0) {
+			return supplyRemaining;
+		}
+		if(LaundrySupplies.isDetergent(this)) {
+			return LaundrySupplies.DETERGENT_OUNCES;
+		}
+		if(LaundrySupplies.isDryerSheet(this)) {
+			return LaundrySupplies.SHEET_COUNT;
+		}
+		return -1;
+	}
+
+	public void setSupplyRemaining(int supplyRemaining) {
+		this.supplyRemaining = supplyRemaining;
+	}
+
+	private String supplyFillSuffix() {
+		String fill = LaundrySupplies.fillLabel(this);
+		if(fill.isEmpty()) {
+			return "";
+		}
+		return " ("+fill+")";
 	}
 
 	public boolean isBreakOutOfInventory() {
@@ -365,7 +412,8 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 						? itemType.getDeterminer()
 						: UtilText.generateSingularDeterminer(name))
 					: "")
-				+ " "+(withRarityColour ? (" <span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>") : " "+name));
+				+ " "+(withRarityColour ? (" <span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>") : " "+name)
+				+ supplyFillSuffix());
 	}
 
 	@Override
@@ -375,13 +423,15 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 				(!itemType.getDeterminer().equalsIgnoreCase("a") && !itemType.getDeterminer().equalsIgnoreCase("an")
 						? itemType.getDeterminer()
 						: UtilText.generateSingularDeterminer(name))
-				+ " "+ (withRarityColour ? ("<span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>") : name)));
+				+ " "+ (withRarityColour ? ("<span style='color: " + rarity.getColour().toWebHexString() + ";'>" + name + "</span>") : name))
+				+ supplyFillSuffix());
 	}
 
 	@Override
 	public String getDisplayNamePlural(boolean withRarityColour) {
 		return UtilText.parse(this,
-				Util.capitaliseSentence((withRarityColour ? ("<span style='color: " + rarity.getColour().toWebHexString() + ";'>" + namePlural + "</span>") : namePlural)));
+				Util.capitaliseSentence((withRarityColour ? ("<span style='color: " + rarity.getColour().toWebHexString() + ";'>" + namePlural + "</span>") : namePlural))
+				+ supplyFillSuffix());
 	}
 
 	/**
@@ -395,7 +445,12 @@ public abstract class AbstractItem extends AbstractCoreItem implements XMLSaving
 	
 	@Override
 	public String getDescription(GameCharacter characterEquippedOn) {
-		return getTypeDescription(characterEquippedOn);
+		String description = getTypeDescription(characterEquippedOn);
+		String fill = LaundrySupplies.fillLabel(this);
+		if(fill.isEmpty()) {
+			return description;
+		}
+		return description+" ("+fill+")";
 	}
 	
 	@Override
