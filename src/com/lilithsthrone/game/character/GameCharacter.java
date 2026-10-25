@@ -420,6 +420,10 @@ public abstract class GameCharacter implements XMLSaving {
 	private int soilGrimeFraction;
 	private int soilMuskGroinFraction;
 	private int soilMuskOtherFraction;
+	/** Seconds left over from the last 12-minute cleanliness tick. */
+	private int cleanlinessTickRemainder;
+	/** Tenths of a cleanliness point not yet applied. */
+	private int cleanlinessLossFraction;
 	
 	// Relationship stats:
 	/** String is character ID*/
@@ -855,6 +859,8 @@ public abstract class GameCharacter implements XMLSaving {
 		saveSoilBank(doc, characterCoreInfo, "soilGrimeFraction", soilGrimeFraction);
 		saveSoilBank(doc, characterCoreInfo, "soilMuskGroinFraction", soilMuskGroinFraction);
 		saveSoilBank(doc, characterCoreInfo, "soilMuskOtherFraction", soilMuskOtherFraction);
+		saveSoilBank(doc, characterCoreInfo, "cleanlinessTickRemainder", cleanlinessTickRemainder);
+		saveSoilBank(doc, characterCoreInfo, "cleanlinessLossFraction", cleanlinessLossFraction);
 		XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "ageAppearanceDifference", String.valueOf(this.getAgeAppearanceDifference()));
 		XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "ageAppearanceAbsolute", String.valueOf(this.getAgeAppearanceAbsolute()));
 		XMLUtil.createXMLElementWithValue(doc, characterCoreInfo, "yearOfBirth", String.valueOf(this.getBirthday().getYear()));
@@ -1673,6 +1679,8 @@ public abstract class GameCharacter implements XMLSaving {
 		character.soilGrimeFraction = readSoilBank(element, "soilGrimeFraction");
 		character.soilMuskGroinFraction = readSoilBank(element, "soilMuskGroinFraction");
 		character.soilMuskOtherFraction = readSoilBank(element, "soilMuskOtherFraction");
+		character.cleanlinessTickRemainder = readSoilBank(element, "cleanlinessTickRemainder");
+		character.cleanlinessLossFraction = readSoilBank(element, "cleanlinessLossFraction");
 		
 		// Age appearance difference:
 		try {
@@ -22092,6 +22100,7 @@ public abstract class GameCharacter implements XMLSaving {
 		this.calculateStatusEffects(0);
 		this.cleanAllDirtySlots(true);
 		sb.append(this.cleanAllClothing(cleanNonEquippedClothing, true));
+		this.setAttribute(Attribute.CLEANLINESS, 100, false);
 		
 		if(effect!=null) {
 			this.removeStatusEffect(StatusEffect.CLEANED_SHOWER);
@@ -22116,6 +22125,9 @@ public abstract class GameCharacter implements XMLSaving {
 		sb.append(this.washAllOrifices(washAllOrifices));
 		this.calculateStatusEffects(0);
 		this.cleanAllDirtySlots(true);
+		if(washAllOrifices || this.getAttributeValue(Attribute.CLEANLINESS) < 80) {
+			this.setAttribute(Attribute.CLEANLINESS, washAllOrifices ? 100 : 80, false);
+		}
 		
 		if(effect!=null) {
 			this.removeStatusEffect(StatusEffect.CLEANED_SHOWER);
@@ -24280,6 +24292,60 @@ public abstract class GameCharacter implements XMLSaving {
 		refreshFreshClothingStatus();
 	}
 
+	/**
+	 * Body cleanliness falls while this character is here. Twelve-minute ticks, same bank as clothing soil.
+	 * A fresh wash slows it. Dirty skin and soiled clothes speed it up.
+	 */
+	public void wearCleanliness(int seconds) {
+		if(seconds <= 0 || attributes == null || !attributes.containsKey(Attribute.CLEANLINESS)) {
+			return;
+		}
+		long banked = (long) cleanlinessTickRemainder + seconds;
+		int ticks = (int) (banked / 720);
+		cleanlinessTickRemainder = (int) (banked % 720);
+		if(ticks <= 0) {
+			return;
+		}
+		int tenthsPerTick = hasStatusEffect(StatusEffect.CLEANED_SHOWER)
+				|| hasStatusEffect(StatusEffect.CLEANED_BATH)
+				|| hasStatusEffect(StatusEffect.CLEANED_SPA)
+						? 2
+						: 8;
+		if(hasBodyFilth()) {
+			tenthsPerTick += 4;
+		}
+		if(wornClothesShowSoil()) {
+			tenthsPerTick += 2;
+		}
+		long lossBank = (long) cleanlinessLossFraction + (long) ticks * tenthsPerTick;
+		cleanlinessLossFraction = (int) (lossBank % 10);
+		int loss = (int) (lossBank / 10);
+		if(loss > 0) {
+			incrementAttribute(Attribute.CLEANLINESS, -loss);
+		}
+	}
+
+	private boolean hasBodyFilth() {
+		if(inventory != null && !getDirtySlots().isEmpty()) {
+			return true;
+		}
+		for(SexAreaOrifice orifice : SexAreaOrifice.values()) {
+			if(orifice != SexAreaOrifice.MOUTH && getTotalFluidInArea(orifice) > 0) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean wornClothesShowSoil() {
+		for(AbstractClothing clothing : getClothingCurrentlyEquipped()) {
+			if(clothing != null && clothing.showsSoilIcon()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private static boolean isMuskSlot(InventorySlot slot) {
 		return slot == InventorySlot.GROIN
 				|| slot == InventorySlot.PENIS
@@ -25762,7 +25828,11 @@ public abstract class GameCharacter implements XMLSaving {
 	
 	public boolean addDirtySlot(InventorySlot slot) {
 		if(slot.isPhysicallyAvailable(this)) {
-			return inventory.addDirtySlot(slot);
+			boolean added = inventory.addDirtySlot(slot);
+			if(added && attributes != null && attributes.containsKey(Attribute.CLEANLINESS)) {
+				incrementAttribute(Attribute.CLEANLINESS, -2);
+			}
+			return added;
 		}
 		return false;
 	}

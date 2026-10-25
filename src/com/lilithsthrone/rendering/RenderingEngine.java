@@ -2818,7 +2818,13 @@ public enum RenderingEngine {
 							PresetColour.ATTRIBUTE_LUST,
 							character.getLust(),
 							100,
-							idPrefix + Attribute.LUST.getName()));
+							idPrefix + Attribute.LUST.getName())
+					
+					+getAttributeBar(Attribute.CLEANLINESS.getSVGString(),
+							PresetColour.ATTRIBUTE_CLEANLINESS,
+							character.getAttributeValue(Attribute.CLEANLINESS),
+							100,
+							idPrefix + Attribute.CLEANLINESS.getName()));
 			
 		} else {
 			panelSB.append(
@@ -2838,7 +2844,13 @@ public enum RenderingEngine {
 							PresetColour.ATTRIBUTE_LUST,
 							character.getLust(),
 							100,
-							idPrefix + Attribute.LUST.getName()));
+							idPrefix + Attribute.LUST.getName())
+					
+					+getAttributeBar(Attribute.CLEANLINESS.getSVGString(),
+							PresetColour.ATTRIBUTE_CLEANLINESS,
+							character.getAttributeValue(Attribute.CLEANLINESS),
+							100,
+							idPrefix + Attribute.CLEANLINESS.getName()));
 		}
 		
 		
@@ -3112,6 +3124,12 @@ public enum RenderingEngine {
 						100,
 						idPrefix + Attribute.AROUSAL.getName()));
 			
+			panelSB.append(getAttributeBar(Attribute.CLEANLINESS.getSVGString(),
+						PresetColour.ATTRIBUTE_CLEANLINESS,
+						character.getAttributeValue(Attribute.CLEANLINESS),
+						100,
+						idPrefix + Attribute.CLEANLINESS.getName()));
+			
 			panelSB.append("</div>");
 			
 		} else {
@@ -3134,7 +3152,13 @@ public enum RenderingEngine {
 							PresetColour.ATTRIBUTE_AROUSAL,
 							character.getArousal(),
 							100,
-							idPrefix + Attribute.AROUSAL.getName()));
+							idPrefix + Attribute.AROUSAL.getName())
+					
+					+getAttributeBar(Attribute.CLEANLINESS.getSVGString(),
+							PresetColour.ATTRIBUTE_CLEANLINESS,
+							character.getAttributeValue(Attribute.CLEANLINESS),
+							100,
+							idPrefix + Attribute.CLEANLINESS.getName()));
 	
 			
 			// Status effects:

@@ -2975,9 +2975,11 @@ public class Game implements XMLSaving {
 		if(secondsPassedThisTurn>0 && player!=null) {
 			player.ageFreshScents(secondsPassedThisTurn);
 			player.soilWornClothes(secondsPassedThisTurn);
+			player.wearCleanliness(secondsPassedThisTurn);
 			for(NPC npc : getCharactersPresent()) {
 				npc.ageFreshScents(secondsPassedThisTurn);
 				npc.soilWornClothes(secondsPassedThisTurn);
+				npc.wearCleanliness(secondsPassedThisTurn);
 			}
 		}
 		

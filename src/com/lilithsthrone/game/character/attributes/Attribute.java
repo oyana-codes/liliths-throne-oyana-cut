@@ -317,7 +317,7 @@ public class Attribute {
 
 	/**
 	 * Part of the hygiene feature. 100 is freshly washed, 0 is filthy.
-	 * The day's wear is applied later. This attribute only stores the value.
+	 * Time, dirty slots, and orifice fluids bring it down. A wash brings it back up.
 	 */
 	public static AbstractAttribute CLEANLINESS = new AbstractAttribute(false,
 			100,

@@ -2285,7 +2285,8 @@ public class MainController implements Initializable {
 				Attribute.MAJOR_ARCANE,
 				Attribute.MAJOR_CORRUPTION,
 				Attribute.AROUSAL,
-				Attribute.LUST };
+				Attribute.LUST,
+				Attribute.CLEANLINESS };
 		
 		List<GameCharacter> charactersBeingRendered = new ArrayList<>();
 		if(Main.game.isInSex()) {
@@ -2682,7 +2683,8 @@ public class MainController implements Initializable {
 				Attribute.MAJOR_ARCANE,
 				Attribute.MAJOR_CORRUPTION,
 				Attribute.AROUSAL,
-				Attribute.LUST };
+				Attribute.LUST,
+				Attribute.CLEANLINESS };
 		if(!RenderingEngine.ENGINE.isRenderingCharactersRightPanel()) {
 			attributes = new AbstractAttribute[] {Attribute.EXPERIENCE};
 		}

@@ -3537,7 +3537,7 @@ public class CharacterUtils {
 		
 		for(int i = 0; i < dirtySlots; i++) {
 			InventorySlot slot = Util.randomItemFrom(validSlots);
-			character.inventory.addDirtySlot(slot);
+			character.addDirtySlot(slot);
 			validSlots.remove(slot);
 		}
 	}
