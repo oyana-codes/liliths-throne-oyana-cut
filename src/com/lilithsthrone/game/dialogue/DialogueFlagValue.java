@@ -97,6 +97,9 @@ public class DialogueFlagValue {
 	// Shopping arcade:
 	public static AbstractDialogueFlagValue ralphAskedAboutHundredKisses = new AbstractDialogueFlagValue();
 	public static AbstractDialogueFlagValue ralphDailyBred = new AbstractDialogueFlagValue(true);
+
+	public static AbstractDialogueFlagValue jennyIntroduced = new AbstractDialogueFlagValue();
+	public static AbstractDialogueFlagValue jennySoapOffered = new AbstractDialogueFlagValue();
 	
 	public static AbstractDialogueFlagValue ashleySexToysDiscovered = new AbstractDialogueFlagValue();
 	public static AbstractDialogueFlagValue ashleyAttitude = new AbstractDialogueFlagValue();

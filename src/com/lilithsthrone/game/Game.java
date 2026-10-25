@@ -97,6 +97,8 @@ import com.lilithsthrone.game.character.npc.dominion.HarpyDominantCompanion;
 import com.lilithsthrone.game.character.npc.dominion.HarpyNympho;
 import com.lilithsthrone.game.character.npc.dominion.HarpyNymphoCompanion;
 import com.lilithsthrone.game.character.npc.dominion.Helena;
+import com.lilithsthrone.game.character.npc.dominion.Jenny;
+import com.lilithsthrone.game.character.npc.dominion.JennysSoaps;
 import com.lilithsthrone.game.character.npc.dominion.Jules;
 import com.lilithsthrone.game.character.npc.dominion.Kalahari;
 import com.lilithsthrone.game.character.npc.dominion.Kate;
@@ -1307,6 +1309,13 @@ public class Game implements XMLSaving {
 					towerCell.getPlace().setPlaceType(PlaceType.getPlaceTypeFromId("innoxia_fields_elis_town_tower_yui"));
 					towerCell.getPlace().setName(PlaceType.getPlaceTypeFromId("innoxia_fields_elis_town_tower_yui").getName());
 				}
+
+				// Jenny's Wash replaces one generic shop. PNG column 6, row 4 is game cell (6, 2).
+				Cell jennysWash = Main.game.getWorlds().get(WorldType.SHOPPING_ARCADE).getCell(6, 2);
+				if(jennysWash!=null && jennysWash.getPlace().getPlaceType().equals(PlaceType.SHOPPING_ARCADE_GENERIC_SHOP)) {
+					jennysWash.getPlace().setPlaceType(PlaceType.SHOPPING_ARCADE_JENNYS_WASH);
+					jennysWash.getPlace().setName(PlaceType.SHOPPING_ARCADE_JENNYS_WASH.getName());
+				}
 				
 				if(debug) {
 					System.out.println("Maps finished: "+ (System.nanoTime()-time)/1000000000d);
@@ -2440,6 +2449,8 @@ public class Game implements XMLSaving {
 			
 			// Shopping Promenade:
 			if(!Main.game.NPCMap.containsKey(Main.game.getUniqueNPCId(Ralph.class))) { addNPC(new Ralph(), false); addedNpcs.add(Ralph.class); }
+			if(!Main.game.NPCMap.containsKey(Main.game.getUniqueNPCId(Jenny.class))) { addNPC(new Jenny(), false); addedNpcs.add(Jenny.class); }
+			if(!Main.game.NPCMap.containsKey(Main.game.getUniqueNPCId(JennysSoaps.class))) { addNPC(new JennysSoaps(), false); addedNpcs.add(JennysSoaps.class); }
 			if(!Main.game.NPCMap.containsKey(Main.game.getUniqueNPCId(Nyan.class))) { addNPC(new Nyan(), false); addedNpcs.add(Nyan.class); }
 			if(!Main.game.NPCMap.containsKey(Main.game.getUniqueNPCId(NyanMum.class))) { addNPC(new NyanMum(), false); addedNpcs.add(NyanMum.class); }
 			if(!Main.game.NPCMap.containsKey(Main.game.getUniqueNPCId(Vicky.class))) { addNPC(new Vicky(), false); addedNpcs.add(Vicky.class); }

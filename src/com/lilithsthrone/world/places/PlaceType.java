@@ -58,6 +58,7 @@ import com.lilithsthrone.game.dialogue.places.dominion.nyansApartment.NyanApartm
 import com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade.ArcaneArts;
 import com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade.ClothingEmporium;
 import com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade.DreamLover;
+import com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade.JennysWash;
 import com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade.PixsPlayground;
 import com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade.RalphsSnacks;
 import com.lilithsthrone.game.dialogue.places.dominion.shoppingArcade.ShoppingArcadeDialogue;
@@ -2933,6 +2934,17 @@ public class PlaceType {
 			RalphsSnacks.EXTERIOR,
 			Darkness.ALWAYS_LIGHT,
 			null, "in his store"
+			).initWeatherImmune();
+
+	public static final AbstractPlaceType SHOPPING_ARCADE_JENNYS_WASH = new AbstractPlaceType(
+			WorldRegion.DOMINION,
+			"Jenny's Wash",
+			"A laundromat. The sign over the door reads 'Jenny's Wash'.",
+			"dominion/shoppingArcade/jennysWash",
+			PresetColour.BASE_AQUA,
+			JennysWash.EXTERIOR,
+			Darkness.ALWAYS_LIGHT,
+			null, "in her laundromat"
 			).initWeatherImmune();
 	
 	public static final AbstractPlaceType SHOPPING_ARCADE_NYANS_SHOP = new AbstractPlaceType(

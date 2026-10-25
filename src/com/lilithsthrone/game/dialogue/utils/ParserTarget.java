@@ -31,6 +31,7 @@ import com.lilithsthrone.game.character.npc.dominion.HarpyDominantCompanion;
 import com.lilithsthrone.game.character.npc.dominion.HarpyNympho;
 import com.lilithsthrone.game.character.npc.dominion.HarpyNymphoCompanion;
 import com.lilithsthrone.game.character.npc.dominion.Helena;
+import com.lilithsthrone.game.character.npc.dominion.Jenny;
 import com.lilithsthrone.game.character.npc.dominion.Jules;
 import com.lilithsthrone.game.character.npc.dominion.Kalahari;
 import com.lilithsthrone.game.character.npc.dominion.Kate;
@@ -451,6 +452,17 @@ public class ParserTarget {
 		@Override
 		public GameCharacter getCharacter(String tag, List<GameCharacter> specialNPCList) {
 			return Main.game.getNpc(Ralph.class);
+		}
+	};
+
+	public static AbstractParserTarget JENNY = new AbstractParserTarget(Util.newArrayListOfValues("jenny"), "") {
+		public String getDescription() {
+			return Main.game.getNpc(Jenny.class).getDescription();
+		}
+
+		@Override
+		public GameCharacter getCharacter(String tag, List<GameCharacter> specialNPCList) {
+			return Main.game.getNpc(Jenny.class);
 		}
 	};
 	

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<item>
+	<coreAttributes>
+		<value>15</value>
+		<determiner><![CDATA[a bar of]]></determiner>
+		<name><![CDATA[unscented soap]]></name>
+		<namePlural pluralByDefault="false"><![CDATA[bars of unscented soap]]></namePlural>
+		<description><![CDATA[A plain bar of soap, made in the back of Jenny's Wash. No scent added.]]></description>
+		<authorTag><![CDATA[Made by Jenny.]]></authorTag>
+		<useDescriptor>use</useDescriptor>
+		<sexUse>false</sexUse>
+		<combatUseAllies>false</combatUseAllies>
+		<combatUseEnemies>false</combatUseEnemies>
+		<consumedOnUse>false</consumedOnUse>
+		<rarity>COMMON</rarity>
+		<imageName>res/items/oyana/images/bar.svg</imageName>
+		<colourPrimary>CLOTHING_WHITE</colourPrimary>
+		<colourSecondary/>
+		<colourTertiary/>
+		<effectTooltipLines/>
+		<applyEffects><![CDATA[
+			<p style='margin-bottom:0; padding-bottom:0;'>
+				[npc.Name] [npc.verb(turn)] it over. It needs a wash before it will do anything.
+			</p>
+		]]></applyEffects>
+		<itemTags>
+		</itemTags>
+	</coreAttributes>
+	<useDescriptions>
+		<selfUse><![CDATA[
+		[npc.Name] [npc.verb(take)] a look at it. It's for a wash.
+		]]></selfUse>
+		<otherUse><![CDATA[
+		[npc.Name] [npc.verb(show)] it to [npc2.name]. It's for a wash.
+		]]></otherUse>
+	</useDescriptions>
+</item>

@@ -127,6 +127,15 @@ public class ShoppingArcadeDialogue {
 						Main.game.setResponseTab(0);
 					}
 				};
+
+			} else if (index == 9) {
+				return new Response("Jenny's Wash", "Fast travel to Jenny's Wash.", PlaceType.SHOPPING_ARCADE_JENNYS_WASH.getDialogue(false)){
+					@Override
+					public void effects() {
+						Main.game.getPlayer().setLocation(WorldType.SHOPPING_ARCADE, PlaceType.SHOPPING_ARCADE_JENNYS_WASH, false);
+						Main.game.setResponseTab(0);
+					}
+				};
 			}
 		}
 		return null;

@@ -412,6 +412,7 @@ public class WorldType {
 					new Value<>(new Color(0x808080), PlaceType.SHOPPING_ARCADE_PATH),
 					new Value<>(new Color(0xff0000), PlaceType.SHOPPING_ARCADE_ENTRANCE),
 					new Value<>(new Color(0x00ffff), PlaceType.SHOPPING_ARCADE_RALPHS_SHOP),
+					new Value<>(new Color(0x00ff80), PlaceType.SHOPPING_ARCADE_JENNYS_WASH),
 					new Value<>(new Color(0xffff00), PlaceType.SHOPPING_ARCADE_NYANS_SHOP),
 					new Value<>(new Color(0x0080ff), PlaceType.SHOPPING_ARCADE_VICKYS_SHOP),
 					new Value<>(new Color(0x8000ff), PlaceType.SHOPPING_ARCADE_PIXS_GYM),
