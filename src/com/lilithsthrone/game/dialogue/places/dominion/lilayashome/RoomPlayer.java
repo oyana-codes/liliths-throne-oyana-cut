@@ -325,6 +325,16 @@ public class RoomPlayer {
 				return new Response("Laundry",
 						"Load the washer and dryer in your ensuite. A cycle keeps running if you leave.",
 						LaundryDialogue.LAUNDRY);
+
+			} else if(index==5) {
+				return new Response("Wash",
+						"Wash yourself, or someone here, one part at a time. Clothes are not washed.",
+						BathDialogue.WASH) {
+					@Override
+					public void effects() {
+						BathDialogue.start();
+					}
+				};
 				
 			} else if(index==11) {
 				return new ResponseEffectsOnly(
