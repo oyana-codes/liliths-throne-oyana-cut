@@ -314,6 +314,32 @@ public class Attribute {
 			return 120;
 		}
 	};
+
+	/**
+	 * Part of the hygiene feature. 100 is freshly washed, 0 is filthy.
+	 * The day's wear is applied later. This attribute only stores the value.
+	 */
+	public static AbstractAttribute CLEANLINESS = new AbstractAttribute(false,
+			100,
+			0,
+			100,
+			"cleanliness",
+			"Cleanliness",
+			"cleanlinessIcon",
+			PresetColour.ATTRIBUTE_CLEANLINESS,
+			"freshness",
+			"musk",
+			null) {
+		@Override
+		public String getDescription(GameCharacter owner) {
+			return UtilText.parse(owner,
+					"How clean [npc.name] is. A wash restores it. Sweat, fluids, and the day's wear will bring it back down.");
+		}
+		@Override
+		public int getOrderPriority() {
+			return 125;
+		}
+	};
 	
 	public static AbstractAttribute VIRILITY = new AbstractAttribute(true, 10, -100, 100, "virility", "Virility", "shieldIcon", PresetColour.GENERIC_SEX, "virility", "sterility", null) {
 		@Override

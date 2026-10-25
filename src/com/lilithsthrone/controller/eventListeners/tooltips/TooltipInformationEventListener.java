@@ -1454,7 +1454,8 @@ public class TooltipInformationEventListener implements EventListener {
 					+ getAttributeTableRowDiv(owner, "Seduction", Attribute.DAMAGE_LUST, Attribute.RESISTANCE_LUST)
 					
 					+ getAttributeDiv(owner, Attribute.FERTILITY)
-					+ getAttributeDiv(owner, Attribute.VIRILITY));
+					+ getAttributeDiv(owner, Attribute.VIRILITY)
+					+ getAttributeDiv(owner, Attribute.CLEANLINESS));
 			
 				if(elemental) {
 					tooltipSB.append("<div class='subTitle' style='font-weight:normal; margin-top:2px; white-space:nowrap;'>");

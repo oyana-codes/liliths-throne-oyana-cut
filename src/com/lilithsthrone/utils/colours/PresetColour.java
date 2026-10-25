@@ -204,6 +204,7 @@ public class PresetColour {
 
 	public static Colour ATTRIBUTE_AROUSAL = new Colour(false, BaseColour.PINK_DEEP, "pink", Util.newArrayListOfValues("arousal", "ars")) {};
 	public static Colour ATTRIBUTE_LUST = new Colour(false, BaseColour.MAGENTA, "magenta", Util.newArrayListOfValues("lust", "lst", "seduction")) {};
+	public static Colour ATTRIBUTE_CLEANLINESS = new Colour(false, BaseColour.AQUA, "aqua", Util.newArrayListOfValues("cleanliness")) {};
 
 	public static Colour PHYSIQUE_STAGE_ZERO = new Colour(false, BaseColour.MAGENTA, "magenta") {};
 	public static Colour PHYSIQUE_STAGE_ONE = new Colour(false, BaseColour.MAGENTA, "magenta") {};

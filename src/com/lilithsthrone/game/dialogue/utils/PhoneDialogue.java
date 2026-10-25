@@ -1188,6 +1188,8 @@ public class PhoneDialogue {
 							"Increases pregnancy chance")
 					+ getAttributeBox(Main.game.getPlayer(), Attribute.VIRILITY,
 							"Increases impregnation chance")
+					+ getAttributeBox(Main.game.getPlayer(), Attribute.CLEANLINESS,
+							"How clean you are. A wash restores it")
 
 					+ "<div class='container-full-width' style='text-align:center; background:"+PresetColour.BACKGROUND_ALT.toWebHexString()+";'>"
 						+ "<b style='color:"+PresetColour.BASE_PINK_LIGHT.toWebHexString()+";'>Pregnancy calculation:</b>"
