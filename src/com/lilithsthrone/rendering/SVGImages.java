@@ -31,7 +31,7 @@ public enum SVGImages {
 			
 			fist,
 			
-			displacedIcon, concealedIcon, dirtyIcon, lipstickIcon, feminineWarningIcon, masculineWarningIcon, jinxedIcon, tattooSwitchTattoo, tattooSwitchClothing, tattooSwitchClothingHighlight, scarIcon,
+			displacedIcon, concealedIcon, dirtyIcon, sweatIcon, grimeIcon, muskIcon, freshScentIcon, lipstickIcon, feminineWarningIcon, masculineWarningIcon, jinxedIcon, tattooSwitchTattoo, tattooSwitchClothing, tattooSwitchClothingHighlight, scarIcon,
 
 			menuIcon,
 			inventoryIcon, inventoryIconDisabled,
@@ -152,6 +152,18 @@ public enum SVGImages {
 			
 			is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/InventoryIcons/dirtyIcon.svg");
 			dirtyIcon = Util.inputStreamToString(is);
+
+			is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/InventoryIcons/sweatIcon.svg");
+			sweatIcon = Util.inputStreamToString(is);
+
+			is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/InventoryIcons/grimeIcon.svg");
+			grimeIcon = Util.inputStreamToString(is);
+
+			is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/InventoryIcons/muskIcon.svg");
+			muskIcon = Util.inputStreamToString(is);
+
+			is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/InventoryIcons/freshScentIcon.svg");
+			freshScentIcon = Util.inputStreamToString(is);
 
 			is = this.getClass().getResourceAsStream("/com/lilithsthrone/res/InventoryIcons/lipstickIcon.svg");
 			lipstickIcon = Util.inputStreamToString(is);
@@ -911,6 +923,22 @@ public enum SVGImages {
 	
 	public String getDirtyIcon() {
 		return dirtyIcon;
+	}
+
+	public String getSweatIcon() {
+		return sweatIcon;
+	}
+
+	public String getGrimeIcon() {
+		return grimeIcon;
+	}
+
+	public String getMuskIcon() {
+		return muskIcon;
+	}
+
+	public String getFreshScentIcon() {
+		return freshScentIcon;
 	}
 	
 	public String getLipstickIcon(Covering covering) {

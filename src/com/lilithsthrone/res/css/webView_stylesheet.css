@@ -2160,6 +2160,17 @@ position:relative;
 	pointer-events: none;
 	-webkit-user-select: none;
 }
+.soilIcon{
+	position:absolute;
+	width:28%;
+	height:28%;
+	pointer-events: none;
+	-webkit-user-select: none;
+}
+.soil-sweat{ right:28%; bottom:28%; }
+.soil-musk{ right:0; bottom:28%; }
+.soil-grime{ right:28%; bottom:0; }
+.soil-fluids{ right:0; bottom:0; }
 .displacedIcon{
 	position:absolute;
 	width:40%;

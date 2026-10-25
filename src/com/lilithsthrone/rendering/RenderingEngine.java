@@ -536,6 +536,25 @@ public enum RenderingEngine {
 		}
 	}
 	
+	private static void appendWornClothingConditionIcons(StringBuilder sb, AbstractClothing clothing) {
+		if(clothing.showsFreshScent()) {
+			sb.append("<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getFreshScentIcon() + "</div>");
+			return;
+		}
+		if(clothing.isSweaty()) {
+			sb.append("<div class='soilIcon soil-sweat'>" + SVGImages.SVG_IMAGE_PROVIDER.getSweatIcon() + "</div>");
+		}
+		if(clothing.isMusky()) {
+			sb.append("<div class='soilIcon soil-musk'>" + SVGImages.SVG_IMAGE_PROVIDER.getMuskIcon() + "</div>");
+		}
+		if(clothing.isGrimy()) {
+			sb.append("<div class='soilIcon soil-grime'>" + SVGImages.SVG_IMAGE_PROVIDER.getGrimeIcon() + "</div>");
+		}
+		if(clothing.isDirty()) {
+			sb.append("<div class='soilIcon soil-fluids'>" + SVGImages.SVG_IMAGE_PROVIDER.getDirtyIcon() + "</div>");
+		}
+	}
+
 	private void appendEquippedClothingSlot(GameCharacter charactersInventoryToRender, InventorySlot invSlot, Set<InventorySlot> blockedSlots, Map<InventorySlot, List<AbstractClothing>> concealedSlots, boolean isSecondary) {
 		String inventorySlotId = "inventory-item-slot";
 		if(isSecondary) {
@@ -564,7 +583,7 @@ public enum RenderingEngine {
 						equippedPanelSB.append("<div class='inventory-icon-content'>"+clothing.getSVGEquippedString(charactersInventoryToRender)+"</div>");
 	
 						equippedPanelSB.append((!clothing.getDisplacedList().isEmpty() ? "<div class='displacedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getDisplacedIcon() + "</div>" : ""));
-						equippedPanelSB.append((clothing.isDirty() ? "<div class='cummedIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getDirtyIcon() + "</div>" : ""));
+						appendWornClothingConditionIcons(equippedPanelSB, clothing);
 						equippedPanelSB.append((clothing.getClothingType().getFemininityMaximum() < charactersInventoryToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getMasculineWarningIcon() + "</div>" : ""));
 						equippedPanelSB.append((clothing.getClothingType().getFemininityMinimum() > charactersInventoryToRender.getFemininityValue() ? "<div class='femininityIcon'>" + SVGImages.SVG_IMAGE_PROVIDER.getFeminineWarningIcon() + "</div>" : ""));
 						

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.w3c.dom.Document;
@@ -78,7 +79,15 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 
 	private Map<String, String> stickers; // Mapping StickerCategory id to Sticker id
 	
+	/** Soil or scent icons are drawn once a value reaches this. */
+	public static final int CONDITION_VISIBLE_AT = 40;
+
 	private boolean dirty;
+	private int sweat;
+	private int grime;
+	private int musk;
+	private String freshScentId;
+	private int freshScentStrength;
 	private boolean unlocked;
 
 	private boolean enchantmentKnown;
@@ -104,6 +113,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		}
 		
 		dirty = false;
+		sweat = 0;
+		grime = 0;
+		musk = 0;
+		freshScentId = "";
+		freshScentStrength = 0;
 		unlocked = false;
 
 		enchantmentKnown = true;
@@ -241,6 +255,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		this.clothingType = clothingType;
 
 		dirty = false;
+		sweat = 0;
+		grime = 0;
+		musk = 0;
+		freshScentId = "";
+		freshScentStrength = 0;
 		unlocked = false;
 
 		enchantmentKnown = true;
@@ -281,6 +300,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		this.displacedList = new ArrayList<>(clothing.getDisplacedList());
 		
 		this.dirty = clothing.isDirty();
+		this.sweat = clothing.sweat;
+		this.grime = clothing.grime;
+		this.musk = clothing.musk;
+		this.freshScentId = clothing.freshScentId;
+		this.freshScentStrength = clothing.freshScentStrength;
 
 		this.slotEquippedTo = clothing.getSlotEquippedTo();
 		this.unlocked = clothing.isUnlocked();
@@ -347,6 +371,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		
 		sb.append(this.isSealed()?"s":"n");
 		sb.append(this.isDirty()?"d":"n");
+		sb.append(this.sweat);
+		sb.append(this.grime);
+		sb.append(this.musk);
+		sb.append(this.freshScentId);
+		sb.append(this.freshScentStrength);
 		sb.append(this.isEnchantmentKnown()?"e":"n");
 		sb.append(this.getHiddenName().trim());
 		sb.append(this.isBadEnchantment()?"b":"n");
@@ -373,6 +402,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 							:true)
 						&& ((AbstractClothing)o).isSealed()==this.isSealed()
 						&& ((AbstractClothing)o).isDirty()==this.isDirty()
+						&& ((AbstractClothing)o).sweat==this.sweat
+						&& ((AbstractClothing)o).grime==this.grime
+						&& ((AbstractClothing)o).musk==this.musk
+						&& ((AbstractClothing)o).freshScentStrength==this.freshScentStrength
+						&& Objects.equals(((AbstractClothing)o).freshScentId, this.freshScentId)
 						&& ((AbstractClothing)o).isEnchantmentKnown()==this.isEnchantmentKnown()
 						&& Objects.equals(((AbstractClothing)o).getHiddenName(), this.getHiddenName())
 						&& ((AbstractClothing)o).isBadEnchantment()==this.isBadEnchantment()
@@ -397,6 +431,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 							:true)
 						&& ((AbstractClothing)o).isSealed()==this.isSealed()
 						&& ((AbstractClothing)o).isDirty()==this.isDirty()
+						&& ((AbstractClothing)o).sweat==this.sweat
+						&& ((AbstractClothing)o).grime==this.grime
+						&& ((AbstractClothing)o).musk==this.musk
+						&& ((AbstractClothing)o).freshScentStrength==this.freshScentStrength
+						&& Objects.equals(((AbstractClothing)o).freshScentId, this.freshScentId)
 						&& ((AbstractClothing)o).isEnchantmentKnown()==this.isEnchantmentKnown()
 						&& Objects.equals(((AbstractClothing)o).getHiddenName(), this.getHiddenName())
 						&& ((AbstractClothing)o).isBadEnchantment()==this.isBadEnchantment()
@@ -421,6 +460,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		}
 		result = 31 * result + (this.isSealed() ? 1 : 0);
 		result = 31 * result + (this.isDirty() ? 1 : 0);
+		result = 31 * result + this.sweat;
+		result = 31 * result + this.grime;
+		result = 31 * result + this.musk;
+		result = 31 * result + this.freshScentStrength;
+		result = 31 * result + this.freshScentId.hashCode();
 		result = 31 * result + (this.isEnchantmentKnown() ? 1 : 0);
 		if(this.getHiddenName()!=null) {
 			result = 31 * result + this.getHiddenName().hashCode();
@@ -485,6 +529,11 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		
 		XMLUtil.addAttribute(doc, element, "sealed", String.valueOf(this.isSealed()));
 		XMLUtil.addAttribute(doc, element, "isDirty", String.valueOf(this.isDirty()));
+		XMLUtil.addAttribute(doc, element, "sweat", String.valueOf(this.sweat));
+		XMLUtil.addAttribute(doc, element, "grime", String.valueOf(this.grime));
+		XMLUtil.addAttribute(doc, element, "musk", String.valueOf(this.musk));
+		XMLUtil.addAttribute(doc, element, "freshScentId", this.freshScentId);
+		XMLUtil.addAttribute(doc, element, "freshScentStrength", String.valueOf(this.freshScentStrength));
 		XMLUtil.addAttribute(doc, element, "enchantmentKnown", String.valueOf(this.isEnchantmentKnown()));
 		XMLUtil.addAttribute(doc, element, "hiddenName", this.getHiddenName());
 		
@@ -886,6 +935,10 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 				clothing.setSealed(Boolean.valueOf(parentElement.getAttribute("sealed")));
 			}
 			clothing.setDirty(null, Boolean.valueOf(parentElement.getAttribute("isDirty")));
+			clothing.setSweat(null, parseConditionValue(parentElement.getAttribute("sweat")));
+			clothing.setGrime(null, parseConditionValue(parentElement.getAttribute("grime")));
+			clothing.setMusk(null, parseConditionValue(parentElement.getAttribute("musk")));
+			clothing.setFreshScent(null, parentElement.getAttribute("freshScentId"), parseConditionValue(parentElement.getAttribute("freshScentStrength")));
 			clothing.setEnchantmentKnown(null, Boolean.valueOf(parentElement.getAttribute("enchantmentKnown")));
 
 			if(!parentElement.getAttribute("hiddenName").isEmpty()) {
@@ -1774,6 +1827,22 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 					descriptionsList.add("[style.boldDirty(Dirty)]");
 				}
 			}
+			if(isSweaty()) {
+				descriptionsList.add(conditionDescription(verbose, plural, "sweaty", sweat, "Aqua"));
+			}
+			if(isGrimy()) {
+				descriptionsList.add(conditionDescription(verbose, plural, "grimy", grime, "Dirty"));
+			}
+			if(isMusky()) {
+				descriptionsList.add(conditionDescription(verbose, plural, "musky", musk, "Sex"));
+			}
+			if(showsFreshScent()) {
+				if(verbose) {
+					descriptionsList.add((plural?"They smell":"It smells")+" of [style.boldAqua("+getFreshScentName()+")] ("+freshScentStrength+"/100).");
+				} else {
+					descriptionsList.add("[style.boldAqua(Fresh: "+getFreshScentName()+")]");
+				}
+			}
 		}
 		
 		if(slotToBeEquippedTo!=null && dirty && Main.game.isInSex()) {
@@ -2312,6 +2381,72 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 	public boolean isDirty() {
 		return dirty;
 	}
+
+	public int getSweat() {
+		return sweat;
+	}
+
+	public int getGrime() {
+		return grime;
+	}
+
+	public int getMusk() {
+		return musk;
+	}
+
+	public String getFreshScentId() {
+		return freshScentId;
+	}
+
+	public int getFreshScentStrength() {
+		return freshScentStrength;
+	}
+
+	public boolean isSweaty() {
+		return sweat >= CONDITION_VISIBLE_AT;
+	}
+
+	public boolean isGrimy() {
+		return grime >= CONDITION_VISIBLE_AT;
+	}
+
+	public boolean isMusky() {
+		return musk >= CONDITION_VISIBLE_AT;
+	}
+
+	/** True when any soil icon should be drawn. Fresh scent is hidden in that case. */
+	public boolean showsSoilIcon() {
+		return isDirty() || isSweaty() || isGrimy() || isMusky();
+	}
+
+	/** True when the fresh-scent icon should be drawn. Soil hides it. */
+	public boolean showsFreshScent() {
+		return freshScentStrength >= CONDITION_VISIBLE_AT
+				&& freshScentId != null
+				&& !freshScentId.isEmpty()
+				&& !showsSoilIcon();
+	}
+
+	public String getFreshScentName() {
+		if(freshScentId == null || freshScentId.isEmpty()) {
+			return "";
+		}
+		return freshScentId.replace('_', ' ');
+	}
+
+	public boolean hasAnyCondition() {
+		return dirty || sweat > 0 || grime > 0 || musk > 0 || freshScentStrength > 0 || (freshScentId != null && !freshScentId.isEmpty());
+	}
+
+	/** Clears fluids, soil, and fresh scent on this instance. Used by washing, which already owns the inventory entry. */
+	public void clearConditionInPlace() {
+		dirty = false;
+		sweat = 0;
+		grime = 0;
+		musk = 0;
+		freshScentId = "";
+		freshScentStrength = 0;
+	}
 	
 	/**
 	 * If this clothing returns true for <i>isMilkingEquipment()</i>, then it will not be dirtied by this method.
@@ -2320,35 +2455,103 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 		if(dirty && this.isMilkingEquipment()) {
 			return;
 		}
-		if(owner!=null) {
-			if(owner.getClothingCurrentlyEquipped().contains(this)) {
-//				System.out.println("1");
-				AbstractClothing c = new AbstractClothing(this) {};
-				owner.forceUnequipClothingIntoVoid(owner, this);
-				c.dirty = dirty;
-				owner.equipClothingOverride(c, c.getSlotEquippedTo(), false, false);
-				
-			} else if(owner.removeClothing(this)) {
-//				System.out.println("2");
-				AbstractClothing c = new AbstractClothing(this) {};
-				c.dirty = dirty;
-				owner.addClothing(c, false);
-//				enchantmentRemovedClothing = c;
-				
-			} else {
-//				System.out.println("3");
-				this.dirty = dirty;
+		mutateCondition(owner, c -> {
+			c.dirty = dirty;
+			if(dirty) {
+				c.clearFreshScentFields();
 			}
-		} else {
-//			System.out.println("4");
-			this.dirty = dirty;
+		});
+	}
+
+	public void setSweat(GameCharacter owner, int value) {
+		setSoil(owner, value, (c, clamped) -> c.sweat = clamped);
+	}
+
+	public void setGrime(GameCharacter owner, int value) {
+		setSoil(owner, value, (c, clamped) -> c.grime = clamped);
+	}
+
+	public void setMusk(GameCharacter owner, int value) {
+		setSoil(owner, value, (c, clamped) -> c.musk = clamped);
+	}
+
+	/**
+	 * Applies a wash scent. A garment that already shows a soil icon does not keep it.
+	 * Passing an empty id or a strength of 0 clears the scent.
+	 */
+	public void setFreshScent(GameCharacter owner, String scentId, int strength) {
+		if(this.isMilkingEquipment()) {
+			return;
 		}
-		
-//		if(Main.game.getPlayer()!=null) {
-//			if(Main.game.getPlayer().getClothingCurrentlyEquipped().contains(this)) {
-//				Main.game.getPlayer().updateInventoryListeners();
-//			}
-//		}
+		String id = scentId == null ? "" : scentId;
+		int clamped = clampCondition(strength);
+		mutateCondition(owner, c -> {
+			if(c.showsSoilIcon() || id.isEmpty() || clamped <= 0) {
+				c.clearFreshScentFields();
+			} else {
+				c.freshScentId = id;
+				c.freshScentStrength = clamped;
+			}
+		});
+	}
+
+	private void setSoil(GameCharacter owner, int value, java.util.function.BiConsumer<AbstractClothing, Integer> apply) {
+		if(this.isMilkingEquipment()) {
+			return;
+		}
+		int clamped = clampCondition(value);
+		mutateCondition(owner, c -> {
+			apply.accept(c, clamped);
+			if(clamped >= CONDITION_VISIBLE_AT) {
+				c.clearFreshScentFields();
+			}
+		});
+	}
+
+	private static int clampCondition(int value) {
+		return Math.max(0, Math.min(100, value));
+	}
+
+	private static int parseConditionValue(String value) {
+		if(value == null || value.isEmpty()) {
+			return 0;
+		}
+		try {
+			return clampCondition(Integer.parseInt(value));
+		} catch(NumberFormatException ex) {
+			return 0;
+		}
+	}
+
+	private void clearFreshScentFields() {
+		freshScentId = "";
+		freshScentStrength = 0;
+	}
+
+	/**
+	 * Clothing stacks are keyed by {@link #getId()}, which includes these values.
+	 * Changing them on a worn or stored item has to replace that entry, same as {@link #setDirty}.
+	 */
+	private void mutateCondition(GameCharacter owner, Consumer<AbstractClothing> mutation) {
+		if(owner!=null && owner.getClothingCurrentlyEquipped().contains(this)) {
+			AbstractClothing c = new AbstractClothing(this) {};
+			mutation.accept(c);
+			owner.forceUnequipClothingIntoVoid(owner, this);
+			owner.equipClothingOverride(c, c.getSlotEquippedTo(), false, false);
+		} else if(owner!=null && owner.removeClothing(this)) {
+			AbstractClothing c = new AbstractClothing(this) {};
+			mutation.accept(c);
+			owner.addClothing(c, false);
+		} else {
+			mutation.accept(this);
+		}
+	}
+
+	private String conditionDescription(boolean verbose, boolean plural, String adjective, int value, String colour) {
+		if(verbose) {
+			return (plural?"They are":"It is")+" [style.bold"+colour+"("+adjective+")] ("+value+"/100).";
+		}
+		return "[style.bold"+colour+"("+Character.toUpperCase(adjective.charAt(0))+adjective.substring(1)+")] ("+value+")";
 	}
 
 	public List<DisplacementType> getDisplacedList() {

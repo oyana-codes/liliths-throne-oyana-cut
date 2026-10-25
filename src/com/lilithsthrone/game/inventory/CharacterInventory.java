@@ -1083,21 +1083,30 @@ public class CharacterInventory implements XMLSaving {
 		}
 		return false;
 	}
+
+	private boolean equippedClothingNeedsWash() {
+		for(AbstractClothing c : this.getClothingCurrentlyEquipped()) {
+			if(c.hasAnyCondition()) {
+				return true;
+			}
+		}
+		return false;
+	}
 	
 	public void cleanAllClothing(boolean includeNotEquippedClothing) {
-		if(!isAnyClothingDirty() && !includeNotEquippedClothing) {
+		if(!equippedClothingNeedsWash() && !includeNotEquippedClothing) {
 			return;
 		}
 		
 		if(includeNotEquippedClothing) {
 			clothingSubInventory.transform(c -> {
-				c.setDirty(null, false);
+				c.clearConditionInPlace();
 				return c;
 			});
 		}
 		
 		for(AbstractClothing c : clothingCurrentlyEquipped) {
-			c.setDirty(null, false);
+			c.clearConditionInPlace();
 		}
 	}
 	
