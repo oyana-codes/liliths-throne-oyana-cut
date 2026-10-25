@@ -1109,6 +1109,32 @@ public class CharacterInventory implements XMLSaving {
 			c.clearConditionInPlace();
 		}
 	}
+
+	/**
+	 * Ages wash scent on equipped clothes and clothes stored in this inventory.
+	 * Inventory entries are rebuilt because the remaining time is part of the stack id.
+	 */
+	public void ageFreshScents(int seconds) {
+		if(seconds<=0) {
+			return;
+		}
+		boolean storedScent = false;
+		for(AbstractClothing clothing : getAllClothingInInventory().keySet()) {
+			if(clothing.hasFreshScent()) {
+				storedScent = true;
+				break;
+			}
+		}
+		if(storedScent) {
+			clothingSubInventory.transform(clothing -> {
+				clothing.passFreshScentTime(seconds);
+				return clothing;
+			});
+		}
+		for(AbstractClothing clothing : clothingCurrentlyEquipped) {
+			clothing.passFreshScentTime(seconds);
+		}
+	}
 	
 	public List<AbstractClothing> getClothingCurrentlyEquipped() {
 		return clothingCurrentlyEquipped;

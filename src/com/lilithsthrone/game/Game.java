@@ -2932,6 +2932,14 @@ public class Game implements XMLSaving {
 		if(loopDebug) {
 			System.out.println("companions done");
 		}
+
+		// Wash scent ages with the player, and with whoever is in the room. The rest of the city is left alone.
+		if(secondsPassedThisTurn>0 && player!=null) {
+			player.ageFreshScents(secondsPassedThisTurn);
+			for(NPC npc : getCharactersPresent()) {
+				npc.ageFreshScents(secondsPassedThisTurn);
+			}
+		}
 		
 		// If a place type has been modified, need to recalculate availability of slave jobs before running occupancyUtil.performHourlyUpdate()
 		if(occupancyUtil.isSlaveJobsRecalculationRequired()) {

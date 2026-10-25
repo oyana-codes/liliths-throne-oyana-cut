@@ -413,6 +413,7 @@ public abstract class GameCharacter implements XMLSaving {
 	
 	protected boolean requiresAttributeStatusEffectCheck = true;
 	protected boolean requiresInventoryStatusEffectCheck = true;
+	private boolean refreshingFreshClothingStatus = false;
 	
 	// Relationship stats:
 	/** String is character ID*/
@@ -4209,6 +4210,7 @@ public abstract class GameCharacter implements XMLSaving {
 			}
 		}
 		requiresInventoryStatusEffectCheck = true;
+		refreshFreshClothingStatus();
 	}
 
 	public static void addPlayerAttributeChangeEventListener(CharacterChangeEventListener eventListener) {
@@ -24126,9 +24128,56 @@ public abstract class GameCharacter implements XMLSaving {
 	public Map<AbstractClothing, Integer> getAllClothingInInventory() {
 		return inventory.getAllClothingInInventory();
 	}
+
+	/**
+	 * Ages wash scent on this character's equipped and stored clothes.
+	 * Shop stock and clothes left on the ground are left alone.
+	 */
+	public void ageFreshScents(int seconds) {
+		if(seconds<=0) {
+			return;
+		}
+		inventory.ageFreshScents(seconds);
+		refreshFreshClothingStatus();
+	}
+
+	/** The soonest worn wash scent, or -1 when nothing worn still smells fresh. */
+	public int getSoonestFreshScentSeconds() {
+		int soonest = -1;
+		for(AbstractClothing clothing : getClothingCurrentlyEquipped()) {
+			if(clothing.showsFreshScent()) {
+				int remaining = clothing.getFreshScentSeconds();
+				if(soonest<0 || remaining<soonest) {
+					soonest = remaining;
+				}
+			}
+		}
+		return soonest;
+	}
+
+	/**
+	 * Shows or removes the fresh-clothes status effect from what is currently worn.
+	 * The effect's timer is the soonest garment, and it has no clock of its own.
+	 */
+	public void refreshFreshClothingStatus() {
+		if(refreshingFreshClothingStatus || statusEffects==null || StatusEffect.FRESH_CLOTHING==null) {
+			return;
+		}
+		refreshingFreshClothingStatus = true;
+		try {
+			if(StatusEffect.FRESH_CLOTHING.isConditionsMet(this)) {
+				addStatusEffect(StatusEffect.FRESH_CLOTHING, StatusEffect.FRESH_CLOTHING.getApplicationLength(this));
+			} else if(hasStatusEffect(StatusEffect.FRESH_CLOTHING)) {
+				removeStatusEffect(StatusEffect.FRESH_CLOTHING);
+			}
+		} finally {
+			refreshingFreshClothingStatus = false;
+		}
+	}
 	
 	public String cleanAllClothing(boolean includeNotEquippedClothing, boolean withDescription) {
 		inventory.cleanAllClothing(includeNotEquippedClothing);
+		refreshFreshClothingStatus();
 		if(!withDescription) {
 			return "";
 		}

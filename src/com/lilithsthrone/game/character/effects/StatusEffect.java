@@ -2644,6 +2644,81 @@ public class StatusEffect {
 			return Main.game.isMuskContentEnabled() && !target.getMuskMarkers().isEmpty();
 		}
 	};
+
+	public static AbstractStatusEffect FRESH_CLOTHING = new AbstractStatusEffect(75,
+			"fresh clothes",
+			"freshClothing",
+			PresetColour.ATTRIBUTE_CLEANLINESS,
+			true,
+			Util.newHashMapOfValues(),
+			null) {
+		@Override
+		public String getName(GameCharacter target) {
+			String sharedScent = sharedFreshScentName(target);
+			if(sharedScent!=null) {
+				return "smells of "+sharedScent;
+			}
+			return "fresh clothes";
+		}
+		@Override
+		public String getDescription(GameCharacter target) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("[npc.NamePos] clothes still carry a wash-day scent.");
+			if(target!=null) {
+				for(AbstractClothing clothing : target.getClothingCurrentlyEquipped()) {
+					if(clothing.showsFreshScent()) {
+						sb.append("<br/>");
+						sb.append(Util.capitaliseSentence(clothing.getName()));
+						sb.append(" smells of ");
+						sb.append(clothing.getFreshScentName());
+						sb.append(", ");
+						sb.append(clothing.getFreshScentTimeLeft());
+						sb.append(" left.");
+					}
+				}
+			}
+			return UtilText.parse(target, sb.toString());
+		}
+		@Override
+		public String applyEffect(GameCharacter target, int secondsPassed, long totalSecondsPassed) {
+			if(!isConditionsMet(target)) {
+				target.removeStatusEffect(FRESH_CLOTHING);
+				return "";
+			}
+			// The clothing clock is the real timer. Put back the time this method is about to subtract.
+			AppliedStatusEffect applied = target.getAppliedStatusEffect(FRESH_CLOTHING);
+			if(applied!=null) {
+				applied.setSecondsRemaining(target.getSoonestFreshScentSeconds() + Math.max(0, secondsPassed));
+			}
+			return "";
+		}
+		@Override
+		public boolean isConditionsMet(GameCharacter target) {
+			return target!=null && target.getSoonestFreshScentSeconds()>0;
+		}
+		@Override
+		public int getApplicationLength(GameCharacter target) {
+			int soonest = target==null ? -1 : target.getSoonestFreshScentSeconds();
+			return soonest>0 ? soonest : -1;
+		}
+		private String sharedFreshScentName(GameCharacter target) {
+			if(target==null) {
+				return null;
+			}
+			String name = null;
+			for(AbstractClothing clothing : target.getClothingCurrentlyEquipped()) {
+				if(!clothing.showsFreshScent()) {
+					continue;
+				}
+				if(name==null) {
+					name = clothing.getFreshScentName();
+				} else if(!name.equals(clothing.getFreshScentName())) {
+					return null;
+				}
+			}
+			return name;
+		}
+	};
 	
 	public static AbstractStatusEffect CLOTHING_ENCHANTMENT_OVER_LIMIT = new AbstractStatusEffect(80,
 			"unstable enchantments",
