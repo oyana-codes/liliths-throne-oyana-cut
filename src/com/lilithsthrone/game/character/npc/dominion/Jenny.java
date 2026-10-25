@@ -108,8 +108,8 @@ public class Jenny extends NPC {
 		PerkManager.initialisePerks(this,
 				Util.newArrayListOfValues(),
 				Util.newHashMapOfValues(
-						new Value<>(PerkCategory.PHYSICAL, 0),
-						new Value<>(PerkCategory.LUST, 0),
+						new Value<>(PerkCategory.PHYSICAL, 1),
+						new Value<>(PerkCategory.LUST, 1),
 						new Value<>(PerkCategory.ARCANE, 0)));
 	}
 
