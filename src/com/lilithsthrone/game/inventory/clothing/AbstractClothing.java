@@ -2565,11 +2565,56 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 	}
 
 	/**
+	 * Watches, rings, piercings, and other jewellery do not pick up wear.
+	 * Sex toys and gags are not included, even when a shop tag would otherwise match.
+	 */
+	public boolean resistsWearSoil() {
+		if(this.isMilkingEquipment()) {
+			return true;
+		}
+		if(soilsQuickly()) {
+			return false;
+		}
+		InventorySlot worn = getSlotEquippedTo();
+		if(worn != null && (worn.isJewellery() || worn == InventorySlot.FINGER)) {
+			return true;
+		}
+		String id = getClothingType().getId() == null ? "" : getClothingType().getId().toLowerCase();
+		String clothingName = getName() == null ? "" : getName().toLowerCase();
+		if(id.contains("watch") || clothingName.contains("watch")
+				|| id.contains("bracelet") || clothingName.contains("bracelet") || clothingName.contains("bangle")
+				|| id.contains("necklace") || clothingName.contains("necklace")
+				|| clothingName.contains("anklet") || clothingName.contains("earring")
+				|| clothingName.contains("glasses")) {
+			return true;
+		}
+		return getItemTags().contains(ItemTag.SOLD_BY_KATE);
+	}
+
+	/** Plugs, dildos, gags, and the other toys that sit against a body and get fouled by use. */
+	public boolean soilsQuickly() {
+		InventorySlot worn = getSlotEquippedTo();
+		if(worn != null && isMufflesSpeech(worn)) {
+			return true;
+		}
+		Set<ItemTag> tags = worn == null ? getItemTags() : getItemTags(worn);
+		for(ItemTag tag : tags) {
+			if(tag == ItemTag.MILKING_EQUIPMENT || tag == ItemTag.CHOKER_SNAP) {
+				continue;
+			}
+			if(tag.isSexToy()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Adds sweat, grime, and musk on this instance without taking it off.
 	 * Worn clothes are a list, not a stack key, so this must not re-equip them.
 	 */
 	public void addSoilInPlace(int sweatAdd, int grimeAdd, int muskAdd) {
-		if(this.isMilkingEquipment() || (sweatAdd==0 && grimeAdd==0 && muskAdd==0)) {
+		if(this.resistsWearSoil() || (sweatAdd==0 && grimeAdd==0 && muskAdd==0)) {
 			return;
 		}
 		sweat = clampCondition(sweat + sweatAdd);
@@ -2584,7 +2629,7 @@ public abstract class AbstractClothing extends AbstractCoreItem implements XMLSa
 	 * If this clothing returns true for <i>isMilkingEquipment()</i>, then it will not be dirtied by this method.
 	 */
 	public void setDirty(GameCharacter owner, boolean dirty) {
-		if(dirty && this.isMilkingEquipment()) {
+		if(dirty && this.resistsWearSoil()) {
 			return;
 		}
 		mutateCondition(owner, c -> {

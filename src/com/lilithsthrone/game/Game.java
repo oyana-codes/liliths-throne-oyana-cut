@@ -241,6 +241,7 @@ import com.lilithsthrone.game.dialogue.npcDialogue.QuickTransformations;
 import com.lilithsthrone.game.dialogue.places.dominion.RedLightDistrict;
 import com.lilithsthrone.game.dialogue.places.dominion.enforcerHQ.EnforcerHQDialogue;
 import com.lilithsthrone.game.dialogue.places.dominion.lilayashome.Lab;
+import com.lilithsthrone.game.dialogue.places.dominion.lilayashome.LaundryDialogue;
 import com.lilithsthrone.game.dialogue.places.dominion.lilayashome.LilayaHomeGeneric;
 import com.lilithsthrone.game.dialogue.places.dominion.slaverAlley.SlaverAlleyDialogue;
 import com.lilithsthrone.game.dialogue.places.dominion.warehouseDistrict.DominionExpress;
@@ -4218,6 +4219,9 @@ public class Game implements XMLSaving {
 	}
 	
 	private boolean requiresYScroll(DialogueNode node) {
+		if(node.equals(LaundryDialogue.LAUNDRY)) {
+			return true;
+		}
 		return currentDialogueNode.getDialogueNodeType()==DialogueNodeType.INVENTORY
 				&& (!node.equals(InventoryDialogue.DYE_CLOTHING)
 						&& !node.equals(InventoryDialogue.DYE_CLOTHING_CHARACTER_CREATION)

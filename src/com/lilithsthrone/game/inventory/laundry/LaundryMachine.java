@@ -10,6 +10,7 @@ import org.w3c.dom.NodeList;
 
 import com.lilithsthrone.controller.xmlParsing.XMLUtil;
 import com.lilithsthrone.game.character.GameCharacter;
+import com.lilithsthrone.game.inventory.InventorySlot;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
 import com.lilithsthrone.game.inventory.item.AbstractItem;
 import com.lilithsthrone.main.Main;
@@ -71,9 +72,21 @@ public class LaundryMachine {
 			}
 			return SMALL;
 		}
+
+		/** 1–6 small, 7–16 medium, 17–24 large. */
+		public static LoadSize forCount(int count) {
+			if(count <= 6) {
+				return SMALL;
+			}
+			if(count <= 16) {
+				return MEDIUM;
+			}
+			return LARGE;
+		}
 	}
 
-	public static final int DRUM_LIMIT = LoadSize.LARGE.getCapacity();
+	/** Home drums hold 24 pieces. The cycle follows how many are inside. */
+	public static final int DRUM_LIMIT = 24;
 
 	private final Kind kind;
 	private Phase phase = Phase.IDLE;
@@ -82,10 +95,27 @@ public class LaundryMachine {
 	private String rememberedScentId = "";
 	private int rememberedScentSeconds;
 	private final List<AbstractClothing> drum = new ArrayList<>();
+	/** Slot this piece was worn in, parallel to {@link #drum}. Null when it came from the bag. */
+	private final List<InventorySlot> wornFrom = new ArrayList<>();
 	private AbstractItem supply;
+	/**
+	 * Added to the clock only while drawing the page for a Wait that has not reached {@code endTurn} yet.
+	 * {@link #finishIfReady()} ignores it, so a later machine is not finished early.
+	 */
+	private static int previewAdvanceSeconds;
 
 	public LaundryMachine(Kind kind) {
 		this.kind = kind;
+		fillEmptyDrum();
+	}
+
+	private void fillEmptyDrum() {
+		drum.clear();
+		wornFrom.clear();
+		for(int i = 0; i < DRUM_LIMIT; i++) {
+			drum.add(null);
+			wornFrom.add(null);
+		}
 	}
 
 	public Kind getKind() {
@@ -104,6 +134,29 @@ public class LaundryMachine {
 		return drum;
 	}
 
+	public int getOccupiedCount() {
+		int count = 0;
+		for(AbstractClothing clothing : drum) {
+			if(clothing != null) {
+				count++;
+			}
+		}
+		return count;
+	}
+
+	public boolean isDrumEmpty() {
+		return getOccupiedCount() == 0;
+	}
+
+	public int firstEmptySlot() {
+		for(int i = 0; i < drum.size(); i++) {
+			if(drum.get(i) == null) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	public AbstractItem getSupply() {
 		return supply;
 	}
@@ -112,11 +165,15 @@ public class LaundryMachine {
 		return phase == Phase.RUNNING;
 	}
 
+	public static void setPreviewAdvance(int seconds) {
+		previewAdvanceSeconds = Math.max(0, seconds);
+	}
+
 	public int getRemainingSeconds() {
 		if(phase != Phase.RUNNING) {
 			return 0;
 		}
-		long remaining = readyAtSeconds - Main.game.getSecondsPassed();
+		long remaining = readyAtSeconds - (Main.game.getSecondsPassed() + previewAdvanceSeconds);
 		if(remaining < 0) {
 			return 0;
 		}
@@ -144,6 +201,29 @@ public class LaundryMachine {
 		}
 	}
 
+	/** Finishes a running cycle immediately. Used when Wait draws the page before the clock moves. */
+	public void completeNow() {
+		if(phase == Phase.RUNNING) {
+			complete();
+		}
+	}
+
+	public InventorySlot getWornFrom(int index) {
+		if(index < 0 || index >= wornFrom.size()) {
+			return null;
+		}
+		return wornFrom.get(index);
+	}
+
+	public boolean hasRememberedOutfit() {
+		for(InventorySlot slot : wornFrom) {
+			if(slot != null) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	public String setLoadSize(LoadSize size) {
 		if(isLocked()) {
 			return "The dial won't turn while it's running.";
@@ -152,24 +232,51 @@ public class LaundryMachine {
 		return "";
 	}
 
-	public String addClothing(GameCharacter owner, AbstractClothing clothing) {
+	public String rejectionFor(AbstractClothing clothing, int slot) {
 		finishIfReady();
+		return previewRejection(clothing, slot);
+	}
+
+	/** Same rules as {@link #rejectionFor}, without advancing a finished cycle. */
+	public String previewRejection(AbstractClothing clothing, int slot) {
 		if(isLocked() || phase == Phase.DONE) {
 			return phase == Phase.DONE ? "Empty it before loading another wash." : "The door is shut.";
 		}
 		if(clothing == null || clothing.isMilkingEquipment()) {
 			return "That doesn't go in.";
 		}
-		if(drum.size() >= DRUM_LIMIT) {
-			return "The drum is full.";
+		if(slot < 0 || slot >= drum.size()) {
+			return "That slot isn't there.";
+		}
+		if(drum.get(slot) != null) {
+			return "That slot is taken.";
 		}
 		if(kind == Kind.DRYER && !clothing.isWet()) {
 			return "The washer comes first.";
 		}
+		return "";
+	}
+
+	public String addClothing(GameCharacter owner, AbstractClothing clothing) {
+		return addClothing(owner, clothing, firstEmptySlot());
+	}
+
+	public String addClothing(GameCharacter owner, AbstractClothing clothing, int slot) {
+		return addClothing(owner, clothing, slot, null);
+	}
+
+	public String addClothing(GameCharacter owner, AbstractClothing clothing, int slot, InventorySlot wornFromSlot) {
+		String rejection = rejectionFor(clothing, slot);
+		if(!rejection.isEmpty()) {
+			return rejection;
+		}
 		if(!owner.getInventory().removeClothing(clothing, 1)) {
 			return "That isn't in your inventory.";
 		}
-		drum.add(new AbstractClothing(clothing) {});
+		AbstractClothing stored = new AbstractClothing(clothing) {};
+		stored.setSlotEquippedTo(null);
+		drum.set(slot, stored);
+		wornFrom.set(slot, wornFromSlot);
 		return "";
 	}
 
@@ -178,35 +285,41 @@ public class LaundryMachine {
 		if(isLocked()) {
 			return "The door is shut.";
 		}
-		if(index < 0 || index >= drum.size()) {
+		if(index < 0 || index >= drum.size() || drum.get(index) == null) {
 			return "";
 		}
-		AbstractClothing clothing = drum.remove(index);
+		AbstractClothing clothing = drum.set(index, null);
+		wornFrom.set(index, null);
 		owner.addClothing(clothing, false);
-		if(drum.isEmpty() && phase == Phase.DONE) {
+		if(isDrumEmpty() && phase == Phase.DONE) {
 			phase = Phase.IDLE;
 		}
 		return "";
 	}
 
 	public String moveClothingTo(LaundryMachine other, int index) {
+		return moveClothingTo(other, index, other.firstEmptySlot());
+	}
+
+	public String moveClothingTo(LaundryMachine other, int index, int targetSlot) {
 		finishIfReady();
 		other.finishIfReady();
-		if(isLocked() || other.isLocked() || other.phase == Phase.DONE) {
-			return "That machine isn't ready.";
-		}
-		if(index < 0 || index >= drum.size()) {
+		if(index < 0 || index >= drum.size() || drum.get(index) == null) {
 			return "";
 		}
 		AbstractClothing clothing = drum.get(index);
-		if(other.kind == Kind.DRYER && !clothing.isWet()) {
-			return "The washer comes first.";
+		String rejection = other.rejectionFor(clothing, targetSlot);
+		if(!rejection.isEmpty()) {
+			return rejection;
 		}
-		if(other.drum.size() >= DRUM_LIMIT) {
-			return "The drum is full.";
+		if(isLocked()) {
+			return "The door is shut.";
 		}
-		other.drum.add(drum.remove(index));
-		if(drum.isEmpty() && phase == Phase.DONE) {
+		InventorySlot from = wornFrom.get(index);
+		other.drum.set(targetSlot, drum.set(index, null));
+		wornFrom.set(index, null);
+		other.wornFrom.set(targetSlot, from);
+		if(isDrumEmpty() && phase == Phase.DONE) {
 			phase = Phase.IDLE;
 		}
 		return "";
@@ -257,12 +370,10 @@ public class LaundryMachine {
 		if(phase != Phase.IDLE) {
 			return phase == Phase.DONE ? "Empty it first." : "It's already running.";
 		}
-		if(drum.isEmpty()) {
+		if(isDrumEmpty()) {
 			return "The drum is empty.";
 		}
-		if(drum.size() > loadSize.getCapacity()) {
-			return "That's more than a " + loadSize.getLabel().toLowerCase() + " load. Turn the dial up, or take something out.";
-		}
+		loadSize = LoadSize.forCount(getOccupiedCount());
 		rememberedScentId = "";
 		rememberedScentSeconds = 0;
 		if(kind == Kind.WASHER) {
@@ -306,7 +417,9 @@ public class LaundryMachine {
 		rememberedScentSeconds = 0;
 		if(kind == Kind.WASHER) {
 			for(AbstractClothing clothing : drum) {
-				clothing.setWet(true);
+				if(clothing != null) {
+					clothing.setWet(true);
+				}
 			}
 		}
 		unload(owner);
@@ -317,22 +430,32 @@ public class LaundryMachine {
 		if(phase == Phase.RUNNING) {
 			return;
 		}
-		for(AbstractClothing clothing : drum) {
-			owner.addClothing(clothing, false);
+		for(int i = 0; i < drum.size(); i++) {
+			AbstractClothing clothing = drum.get(i);
+			if(clothing != null) {
+				owner.addClothing(clothing, false);
+				drum.set(i, null);
+			}
+			wornFrom.set(i, null);
 		}
-		drum.clear();
 		phase = Phase.IDLE;
 	}
 
 	private void complete() {
 		if(kind == Kind.WASHER) {
 			for(AbstractClothing clothing : drum) {
+				if(clothing == null) {
+					continue;
+				}
 				clothing.clearConditionInPlace();
 				clothing.setWet(true);
 				clothing.setPendingFreshScent(rememberedScentId, rememberedScentSeconds);
 			}
 		} else {
 			for(AbstractClothing clothing : drum) {
+				if(clothing == null) {
+					continue;
+				}
 				clothing.setWet(false);
 				if(rememberedScentId != null && !rememberedScentId.isEmpty() && rememberedScentSeconds > 0) {
 					clothing.setPendingFreshScent("", 0);
@@ -366,8 +489,15 @@ public class LaundryMachine {
 		}
 		Element drumElement = doc.createElement("drum");
 		element.appendChild(drumElement);
-		for(AbstractClothing clothing : drum) {
-			clothing.saveAsXML(drumElement, doc);
+		for(int i = 0; i < drum.size(); i++) {
+			if(drum.get(i) == null) {
+				continue;
+			}
+			Element saved = drum.get(i).saveAsXML(drumElement, doc);
+			saved.setAttribute("drumSlot", String.valueOf(i));
+			if(wornFrom.get(i) != null) {
+				saved.setAttribute("wornFrom", wornFrom.get(i).name());
+			}
 		}
 		return element;
 	}
@@ -411,14 +541,39 @@ public class LaundryMachine {
 		if(drums.getLength() > 0) {
 			Element drumElement = (Element) drums.item(0);
 			NodeList children = drumElement.getChildNodes();
+			int packed = 0;
 			for(int i = 0; i < children.getLength(); i++) {
 				Node node = children.item(i);
-				if(node instanceof Element && "clothing".equals(((Element) node).getTagName())) {
-					AbstractClothing clothing = AbstractClothing.loadFromXML((Element) node, doc);
-					if(clothing != null) {
-						machine.drum.add(clothing);
+				if(!(node instanceof Element) || !"clothing".equals(((Element) node).getTagName())) {
+					continue;
+				}
+				Element clothingElement = (Element) node;
+				AbstractClothing clothing = AbstractClothing.loadFromXML(clothingElement, doc);
+				if(clothing == null) {
+					continue;
+				}
+				int slot = packed;
+				if(clothingElement.hasAttribute("drumSlot")) {
+					try {
+						slot = Integer.parseInt(clothingElement.getAttribute("drumSlot"));
+					} catch(Exception ex) {
+						slot = packed;
 					}
 				}
+				if(slot < 0 || slot >= DRUM_LIMIT || machine.drum.get(slot) != null) {
+					slot = machine.firstEmptySlot();
+				}
+				if(slot >= 0) {
+					machine.drum.set(slot, clothing);
+					if(clothingElement.hasAttribute("wornFrom")) {
+						try {
+							machine.wornFrom.set(slot, InventorySlot.valueOf(clothingElement.getAttribute("wornFrom")));
+						} catch(Exception ex) {
+							machine.wornFrom.set(slot, null);
+						}
+					}
+				}
+				packed++;
 			}
 		}
 		return machine;

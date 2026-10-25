@@ -1057,6 +1057,12 @@ position:relative;
 	  #222 20px
 	);
 }
+.inventory-item-slot.laundry-hover {
+	box-shadow: inset 0 0 0 2px #3ec6e0;
+}
+.inventory-item-slot.laundry-reject {
+	box-shadow: inset 0 0 0 2px #d45555;
+}
 /* For if inventory-item-slot class is used as a button: */
 .inventory-item-slot-button {
 	display:inline-block;

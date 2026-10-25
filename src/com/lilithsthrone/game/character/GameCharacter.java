@@ -24253,11 +24253,29 @@ public abstract class GameCharacter implements XMLSaving {
 				continue;
 			}
 			InventorySlot slot = clothing.getSlotEquippedTo();
-			if(slot == null || slot.isJewellery() || clothing.isMilkingEquipment()) {
+			if(slot == null || clothing.resistsWearSoil()) {
 				continue;
 			}
-			int muskAdd = isMuskSlot(slot) ? muskGroinAdd : muskOtherAdd;
-			clothing.addSoilInPlace(sweatAdd, grimeAdd, muskAdd);
+			int sweat = sweatAdd;
+			int grime = grimeAdd;
+			int musk = isMuskSlot(slot) ? muskGroinAdd : muskOtherAdd;
+			if(clothing.soilsQuickly()) {
+				boolean gag = clothing.isMufflesSpeech(slot);
+				sweat = sweat / 2;
+				int quickGrime = ticks * (gag ? 5 : 6);
+				int quickMusk = ticks * (gag ? 2 : 5);
+				if(grime < quickGrime) {
+					grime = quickGrime;
+				}
+				if(musk < quickMusk) {
+					musk = quickMusk;
+				}
+			}
+			if(clothing.isDirty()) {
+				grime = Math.min(100, grime * 2);
+				musk = Math.min(100, musk * 2);
+			}
+			clothing.addSoilInPlace(sweat, grime, musk);
 		}
 		refreshFreshClothingStatus();
 	}
