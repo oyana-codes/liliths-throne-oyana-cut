@@ -1,56 +1,53 @@
 package com.lilithsthrone.game.dialogue.places.dominion.lilayashome;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
+import com.lilithsthrone.game.bath.Bath;
+import com.lilithsthrone.game.bath.BathAction;
+import com.lilithsthrone.game.bath.BathActionManager;
+import com.lilithsthrone.game.bath.BathCategory;
+import com.lilithsthrone.game.bath.BathFacility;
+import com.lilithsthrone.game.bath.BathPace;
 import com.lilithsthrone.game.character.GameCharacter;
-import com.lilithsthrone.game.character.attributes.Attribute;
-import com.lilithsthrone.game.character.effects.StatusEffect;
-import com.lilithsthrone.game.character.npc.NPC;
 import com.lilithsthrone.game.dialogue.DialogueNode;
 import com.lilithsthrone.game.dialogue.responses.Response;
-import com.lilithsthrone.game.inventory.InventorySlot;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
 import com.lilithsthrone.game.inventory.clothing.DisplacementType;
 import com.lilithsthrone.game.inventory.item.AbstractItem;
-import com.lilithsthrone.game.sex.SexAreaOrifice;
+import com.lilithsthrone.game.sex.SexPace;
 import com.lilithsthrone.main.Main;
-import com.lilithsthrone.utils.Util;
+import com.lilithsthrone.utils.colours.Colour;
 import com.lilithsthrone.utils.colours.PresetColour;
-import com.lilithsthrone.game.dialogue.utils.UtilText;
 
 /**
- * Interactive wash in the player's ensuite.
- * One scene, like sex: each response is an action, and the page is replaced by that action.
+ * The wash scene. Each action is appended under the last one, the way sex does it.
+ * The lines themselves come from res/bath.
+ * The pace chosen at the start is the default. A part washed once then offers that wash again, plus eager and rough.
+ * Reaching the edge replaces the tabs with orgasm, prepare, and deny.
  */
 public class BathDialogue {
 
-	private static final int WASH_SECONDS = 2 * 60;
 	private static final int UNCOVER_SECONDS = 60;
 
-	private static String targetId;
-	private static String lastProse;
-	private static int soapIndex = -1;
-	private static final Set<String> insistedIds = new HashSet<>();
-	private static final Map<String, Integer> scrubs = new HashMap<>();
-	private static final Set<String> scrubbed = new HashSet<>();
-	private static final Set<String> internalDone = new HashSet<>();
-
 	public static void start() {
-		targetId = Main.game.getPlayer().getId();
-		lastProse = null;
-		soapIndex = -1;
-		insistedIds.clear();
-		scrubs.clear();
-		scrubbed.clear();
-		internalDone.clear();
+		Bath.start(BathFacility.BOTH);
 	}
 
 	public static final DialogueNode WASH = new DialogueNode("Bath", "", true) {
+
+		@Override
+		public boolean isContinuesDialogue() {
+			return Bath.isContinuing();
+		}
+
+		@Override
+		public boolean isDisplaysActionTitleOnContinuesDialogue() {
+			return true;
+		}
+
 		@Override
 		public boolean isContentParsed() {
 			return false;
@@ -58,12 +55,17 @@ public class BathDialogue {
 
 		@Override
 		public String getContent() {
-			ensureSession();
-			return UtilText.parse(target(), page());
+			if(!Bath.isStarted()) {
+				Bath.start(BathFacility.BOTH);
+			}
+			return Bath.getDescription();
 		}
 
 		@Override
 		public String getResponseTabTitle(int index) {
+			if(!Bath.isPaceChosen() || Bath.isReadyToOrgasm(Main.game.getPlayer())) {
+				return null;
+			}
 			BathTab tab = tabAt(index);
 			if(tab == null) {
 				return null;
@@ -77,6 +79,10 @@ public class BathDialogue {
 					return "Lower";
 				case EXTRA:
 					return "Extra";
+				case POSITION:
+					return "Position";
+				case PACE:
+					return "Pace";
 				case OPTIONS:
 					return "Options";
 				default:
@@ -86,9 +92,14 @@ public class BathDialogue {
 
 		@Override
 		public Response getResponse(int responseTab, int index) {
-			ensureSession();
-			if(index == 0) {
-				return null;
+			if(!Bath.isStarted()) {
+				Bath.start(BathFacility.BOTH);
+			}
+			if(!Bath.isPaceChosen()) {
+				return openingPaceResponse(index);
+			}
+			if(Bath.isReadyToOrgasm(Main.game.getPlayer())) {
+				return orgasmResponse(index);
 			}
 			BathTab tab = tabAt(responseTab);
 			if(tab == null) {
@@ -97,481 +108,426 @@ public class BathDialogue {
 			if(tab == BathTab.OPTIONS) {
 				return optionsResponse(index);
 			}
-			List<BathArea> areas = areasOn(tab);
-			if(index - 1 >= areas.size()) {
-				return null;
-			}
-			return actionResponse(areas.get(index - 1));
+			return paged(responsesOn(tab), index);
 		}
 	};
 
-	private static Response optionsResponse(int index) {
-		GameCharacter target = target();
-		if(mustInsist(target)) {
-			if(index == 1) {
-				return new Response("Insist", "They do not want this. Insist, and the wash can continue. This does not clean anything.", WASH) {
-					@Override
-					public void effects() {
-						insist();
-					}
-					@Override
-					public int getSecondsPassed() {
-						return UNCOVER_SECONDS;
-					}
-				};
+	private static Response openingPaceResponse(int index) {
+		if(index == 1) {
+			return paceStart("Regularly", BathPace.NORMAL, "Start at an easy pace. The first wash of each part uses this until you change it.");
+		}
+		if(index == 2) {
+			return paceStart("Eagerly", BathPace.EAGER, "Start eager. The first wash of each part uses the eager lines until you change it.");
+		}
+		if(index == 3) {
+			return paceStart("Roughly", BathPace.ROUGH, "Start rough. The first wash of each part uses the rough lines until you change it.");
+		}
+		if(index == 4) {
+			return new Response("Leave",
+					"Step back into the room. Nothing is washed, and no bathed status is gained.",
+					RoomPlayer.ROOM) {
+				@Override
+				public void effects() {
+					Bath.leave();
+				}
+			};
+		}
+		return null;
+	}
+
+	private static Response paceStart(String title, BathPace pace, String tooltip) {
+		return new Response(title, tooltip, WASH) {
+			@Override
+			public void effects() {
+				Bath.chooseOpeningPace(pace);
 			}
-			if(index == 2) {
-				return leaveResponse();
+			@Override
+			public int getSecondsPassed() {
+				return 0;
 			}
-			if(index == 3) {
-				return switchResponse();
+			@Override
+			public SexPace getSexPace() {
+				return toSexPace(pace);
 			}
-			if(index == 4) {
-				return soapResponse();
+			@Override
+			public Colour getHighlightColour() {
+				return paceColour(pace);
 			}
+		};
+	}
+
+	/**
+	 * The wash that crossed 100 already happened. These three decide the ending, and they take no further time.
+	 * Index 0 stays empty, the same way a sex orgasm menu does.
+	 */
+	private static Response orgasmResponse(int index) {
+		GameCharacter player = Main.game.getPlayer();
+		BathPace pace = Bath.getPendingPace(player);
+		if(index == 1) {
+			return new Response("Orgasm", "Let it happen. Arousal falls afterwards.", WASH) {
+				@Override
+				public void effects() {
+					Bath.orgasm();
+				}
+				@Override
+				public int getSecondsPassed() {
+					return 0;
+				}
+				@Override
+				public SexPace getSexPace() {
+					return toSexPace(pace);
+				}
+				@Override
+				public Colour getHighlightColour() {
+					Colour colour = paceColour(pace);
+					return colour == null ? PresetColour.GENERIC_SEX : colour;
+				}
+			};
+		}
+		if(index == 2) {
+			return new Response("Prepare", "Stay on the edge. Nothing is spent, and the choice stays.", WASH) {
+				@Override
+				public void effects() {
+					Bath.prepare();
+				}
+				@Override
+				public int getSecondsPassed() {
+					return 0;
+				}
+				@Override
+				public Colour getHighlightColour() {
+					return PresetColour.GENERIC_SEX;
+				}
+			};
+		}
+		if(index == 3) {
+			return new Response("Deny", "Pull back. Arousal drops, and this does not count as an orgasm.", WASH) {
+				@Override
+				public void effects() {
+					Bath.deny();
+				}
+				@Override
+				public int getSecondsPassed() {
+					return 0;
+				}
+				@Override
+				public Colour getHighlightColour() {
+					return PresetColour.BASE_CRIMSON;
+				}
+			};
+		}
+		return null;
+	}
+
+	/**
+	 * Page 0 uses indexes 1 to 14, then index 0 as the fifteenth.
+	 * Later pages are asked for as a flat index, the same way sex pages its actions.
+	 */
+	private static Response paged(List<Response> responses, int index) {
+		int listIndex;
+		if(index == 0) {
+			listIndex = 14;
+		} else if(index < 15) {
+			listIndex = index - 1;
+		} else {
+			listIndex = index;
+		}
+		if(listIndex < 0 || listIndex >= responses.size()) {
 			return null;
 		}
+		return responses.get(listIndex);
+	}
+
+	private static Response optionsResponse(int index) {
+		GameCharacter player = Main.game.getPlayer();
 		if(index == 1) {
-			final int washed = scrubsOf(target);
-			final int minutes = Math.min(270, 30 + (10 * washed));
+			int minutes = Bath.bathedMinutes(player);
 			return new Response("Finish",
 					"Step out. " + minutes + " minutes of the bathed status, and no heal. Clothes are not washed.",
 					RoomPlayer.ROOM) {
 				@Override
 				public void effects() {
-					finish(target(), minutes);
+					Bath.finish();
 				}
 			};
 		}
 		if(index == 2) {
-			return leaveResponse();
+			return new Response("Leave",
+					"Step back into the room. Parts already washed stay clean. No bathed status.",
+					RoomPlayer.ROOM) {
+				@Override
+				public void effects() {
+					Bath.leave();
+				}
+			};
 		}
 		if(index == 3) {
-			return switchResponse();
-		}
-		if(index == 4) {
 			return soapResponse();
 		}
 		return null;
 	}
 
-	private static Response leaveResponse() {
-		return new Response("Leave", "Step back into your room. Parts already washed stay clean. No bathed status.", RoomPlayer.ROOM);
-	}
-
-	private static Response switchResponse() {
-		if(who().size() < 2) {
-			return null;
-		}
-		return new Response("Switch", "Wash someone else who is here.", WASH) {
-			@Override
-			public void effects() {
-				switchTarget();
-			}
-		};
-	}
-
 	private static Response soapResponse() {
-		List<AbstractItem> soaps = soaps();
+		List<AbstractItem> soaps = Bath.soaps();
 		if(soaps.isEmpty()) {
-			return new Response("Soap", "You have no soap. Water still works.", null);
+			return new Response("Soap", "There is no soap in the bag. Water still works.", null);
 		}
-		AbstractItem selected = selectedSoap();
+		AbstractItem selected = Bath.selectedSoap();
 		String using = selected == null ? "Water only." : "Using " + selected.getName(false, false) + ".";
 		return new Response("Soap", using + " Cycle to the next bar, or back to water. The bar is not used up.", WASH) {
 			@Override
 			public void effects() {
-				cycleSoap();
+				Bath.cycleSoap();
 			}
 		};
 	}
 
-	private static Response actionResponse(BathArea area) {
-		GameCharacter target = target();
-		Map.Entry<AbstractClothing, DisplacementType> blocking = area.blocking(target);
-		if(blocking != null) {
-			if(!canMove(target, blocking)) {
-				return new Response(area.getUncoverTitle(), "That will not come off, so this part cannot be washed yet.", null);
+	private static List<Response> responsesOn(BathTab tab) {
+		GameCharacter player = Main.game.getPlayer();
+		List<Response> responses = new ArrayList<>();
+		for(BathAction action : actionsOn(tab)) {
+			if(isRepeatable(action)) {
+				responses.addAll(repeatableResponses(player, action));
+			} else if(!action.isPerformable(player)) {
+				responses.add(new Response(action.getTitle(), action.disabledReason(player), null));
+			} else {
+				responses.add(actionResponse(action, null, action.getTitle()));
 			}
-			String clothingName = blocking.getKey().getName(true);
-			return new Response(area.getUncoverTitle(),
-					"One minute. Moves " + clothingName + " aside. Does not wash it, and does not wash the part yet.",
-					WASH) {
-				@Override
-				public void effects() {
-					uncover(area);
-				}
-				@Override
-				public int getSecondsPassed() {
-					return UNCOVER_SECONDS;
-				}
-			};
 		}
-		String state;
-		if(area.isFilthy(target)) {
-			state = "Stained. Two minutes.";
-		} else if(isSweaty(target, area)) {
-			state = "Not stained, but not washed yet. Two minutes.";
+		return responses;
+	}
+
+	private static boolean isRepeatable(BathAction action) {
+		return action.getCategory() == BathCategory.WASH
+				|| action.getCategory() == BathCategory.SOAK
+				|| action.getCategory() == BathCategory.DEEP;
+	}
+
+	private static List<Response> repeatableResponses(GameCharacter player, BathAction action) {
+		List<Response> responses = new ArrayList<>();
+		BathArea area = action.getArea();
+		if(area != null && (action.getCategory() == BathCategory.WASH || action.getCategory() == BathCategory.DEEP)) {
+			if(!Bath.canReach(player, area)) {
+				responses.add(new Response(action.getTitle(), Bath.reachReason(player, area), null));
+				return responses;
+			}
+			Map.Entry<AbstractClothing, DisplacementType> blocking = area.blocking(player);
+			if(blocking != null) {
+				if(action.getCategory() == BathCategory.WASH) {
+					responses.add(uncoverResponse(area, blocking));
+				}
+				return responses;
+			}
+		}
+		if(!action.isPerformable(player)) {
+			responses.add(new Response(action.getTitle(), action.disabledReason(player), null));
+			return responses;
+		}
+		if(Bath.hasPerformed(player, action.getId())) {
+			responses.add(actionResponse(action, BathPace.NORMAL, pacedTitle(action, BathPace.NORMAL)));
+			responses.add(actionResponse(action, BathPace.EAGER, pacedTitle(action, BathPace.EAGER)));
+			responses.add(actionResponse(action, BathPace.ROUGH, pacedTitle(action, BathPace.ROUGH)));
 		} else {
-			state = "Already washed. Another pass still helps a little. Two minutes.";
+			responses.add(actionResponse(action, null, action.getTitle()));
 		}
-		return new Response(area.getWashTitle(), state, WASH) {
+		return responses;
+	}
+
+	private static String pacedTitle(BathAction action, BathPace pace) {
+		String base = action.getTitle();
+		if(base == null || base.isEmpty()) {
+			base = "wash";
+		}
+		String lower = Character.toLowerCase(base.charAt(0)) + base.substring(1);
+		switch(pace) {
+			case EAGER:
+				return "Eagerly " + lower;
+			case ROUGH:
+				return "Roughly " + lower;
+			case NORMAL:
+			default:
+				return base;
+		}
+	}
+
+	/** Null when this button is not a pace. Position, soap, finish, and uncover stay plain. */
+	private static BathPace shownPace(BathAction action, BathPace pace) {
+		if(action.getSetsPace() != null) {
+			return action.getSetsPace();
+		}
+		if(pace != null) {
+			return pace;
+		}
+		if(isRepeatable(action)) {
+			return Bath.getPace(Main.game.getPlayer());
+		}
+		return null;
+	}
+
+	/** Same icons sex uses. There is no dominant eager pace, so eager uses the eager submissive icon. */
+	private static SexPace toSexPace(BathPace pace) {
+		if(pace == null) {
+			return null;
+		}
+		switch(pace) {
+			case EAGER:
+				return SexPace.SUB_EAGER;
+			case ROUGH:
+				return SexPace.DOM_ROUGH;
+			case NORMAL:
+			default:
+				return SexPace.DOM_NORMAL;
+		}
+	}
+
+	private static Colour paceColour(BathPace pace) {
+		if(pace == null) {
+			return null;
+		}
+		switch(pace) {
+			case EAGER:
+				return PresetColour.BASE_PINK_DEEP;
+			case ROUGH:
+				return PresetColour.BASE_CRIMSON;
+			case NORMAL:
+			default:
+				return PresetColour.BASE_PINK;
+		}
+	}
+
+	private static Response actionResponse(BathAction action, BathPace pace, String title) {
+		GameCharacter player = Main.game.getPlayer();
+		String tooltip = action.getTooltip(player, pace);
+		int seconds = action.getSeconds();
+		BathPace shown = shownPace(action, pace);
+		return new Response(title, tooltip, WASH) {
 			@Override
 			public void effects() {
-				wash(area);
+				Bath.perform(action, pace);
 			}
 			@Override
 			public int getSecondsPassed() {
-				return WASH_SECONDS;
+				return seconds;
+			}
+			@Override
+			public SexPace getSexPace() {
+				return toSexPace(shown);
+			}
+			@Override
+			public Colour getHighlightColour() {
+				Colour colour = paceColour(shown);
+				return colour == null ? super.getHighlightColour() : colour;
 			}
 		};
 	}
 
-	private static void uncover(BathArea area) {
-		GameCharacter target = target();
-		Map.Entry<AbstractClothing, DisplacementType> blocking = area.blocking(target);
-		if(blocking == null || !canMove(target, blocking)) {
-			lastProse = "<p>There is nothing in the way.</p>";
-			return;
+	private static Response uncoverResponse(BathArea area, Map.Entry<AbstractClothing, DisplacementType> blocking) {
+		if(!canMove(blocking)) {
+			return new Response(area.getUncoverTitle(), "That will not come off, so this part cannot be washed yet.", null);
 		}
-		AbstractClothing clothing = blocking.getKey();
-		String clothingName = clothing.getName(true);
-		DisplacementType displacement = blocking.getValue();
+		return new Response(area.getUncoverTitle(),
+				"One minute. Moves it aside. Does not wash it, and does not wash the part yet.",
+				WASH) {
+			@Override
+			public void effects() {
+				Bath.uncover(area);
+			}
+			@Override
+			public int getSecondsPassed() {
+				return UNCOVER_SECONDS;
+			}
+		};
+	}
+
+	private static boolean canMove(Map.Entry<AbstractClothing, DisplacementType> blocking) {
 		GameCharacter player = Main.game.getPlayer();
-		if(displacement == DisplacementType.REMOVE_OR_EQUIP) {
-			target.unequipClothingIntoInventory(clothing, true, player);
-		} else {
-			target.isAbleToBeDisplaced(clothing, displacement, true, true, player);
-		}
-		lastProse = "<p>" + area.uncoverText(clothingName) + "</p>";
-	}
-
-	private static void wash(BathArea area) {
-		GameCharacter target = target();
-		if(area.blocking(target) != null) {
-			lastProse = "<p>Clothing is still in the way.</p>";
-			return;
-		}
-		boolean filthy = area.isFilthy(target);
-		for(InventorySlot slot : area.getSlots()) {
-			target.removeDirtySlot(slot, true);
-		}
-		for(SexAreaOrifice orifice : area.getOrifices()) {
-			cleanOrifice(target, area, orifice);
-		}
-		AbstractItem soap = selectedSoap();
-		int gain = filthy ? (soap == null ? 10 : 12) : (soap == null ? 2 : 4);
-		target.incrementAttribute(Attribute.CLEANLINESS, gain);
-		if(area.isIntimate()) {
-			target.incrementArousal(5);
-		}
-		scrubs.put(target.getId(), scrubsOf(target) + 1);
-		scrubbed.add(target.getId() + "|" + area.name());
-
-		StringBuilder text = new StringBuilder();
-		if(!target.isPlayer() && !isWilling(target)) {
-			text.append("[npc.Name] tells you to stop. You do not. ");
-		}
-		text.append(area.washText());
-		if(soap != null) {
-			if("oyana_soap_unscented".equals(soap.getItemType().getId())) {
-				text.append(" The unscented soap cuts through whatever was on [npc.her] skin.");
-			} else {
-				text.append(" The ").append(soap.getName(false, false)).append(" leaves its scent on [npc.her] skin.");
-			}
-		}
-		lastProse = "<p>" + text + "</p>";
-	}
-
-	private static void cleanOrifice(GameCharacter target, BathArea area, SexAreaOrifice orifice) {
-		if(orifice == SexAreaOrifice.MOUTH || !orifice.isInternalOrifice()) {
-			target.clearFluidsStored(orifice);
-			return;
-		}
-		String key = target.getId() + "|" + area.name() + "|" + orifice.name();
-		if(internalDone.contains(key)) {
-			target.clearFluidsStored(orifice);
-		} else {
-			target.drainTotalFluidsStored(orifice, 500);
-			internalDone.add(key);
-		}
-	}
-
-	private static void insist() {
-		GameCharacter target = target();
-		insistedIds.add(target.getId());
-		lastProse = "<p>[npc.Name] does not want this. You insist, and [npc.she] stops arguing. The water is still running.</p>";
-	}
-
-	private static void switchTarget() {
-		List<GameCharacter> people = who();
-		int index = 0;
-		String current = target().getId();
-		for(int i = 0; i < people.size(); i++) {
-			if(people.get(i).getId().equals(current)) {
-				index = i;
-				break;
-			}
-		}
-		targetId = people.get((index + 1) % people.size()).getId();
-		lastProse = null;
-	}
-
-	private static void cycleSoap() {
-		List<AbstractItem> soaps = soaps();
-		if(soaps.isEmpty()) {
-			soapIndex = -1;
-			lastProse = "<p>You have no soap. Water will do.</p>";
-			return;
-		}
-		soapIndex++;
-		if(soapIndex >= soaps.size()) {
-			soapIndex = -1;
-			lastProse = "<p>You set the soap aside. Water will do.</p>";
-			return;
-		}
-		lastProse = "<p>You pick up the " + soaps.get(soapIndex).getName(false, false) + ". It will not be used up.</p>";
-	}
-
-	private static void finish(GameCharacter target, int minutes) {
-		target.removeStatusEffect(StatusEffect.CLEANED_SHOWER);
-		target.removeStatusEffect(StatusEffect.CLEANED_BATH);
-		target.removeStatusEffect(StatusEffect.CLEANED_SPA);
-		target.addStatusEffect(StatusEffect.CLEANED_BATH, minutes * 60);
-
-		StringBuilder end = new StringBuilder();
-		end.append(UtilText.parse(target,
-				"<p>You step out of the water. [npc.Name] [npc.has] had a proper wash, and the warmth of it lingers.</p>"));
-		if(!target.isPlayer()) {
-			if(isWilling(target)) {
-				end.append(target.incrementAffection(Main.game.getPlayer(), 1));
-			} else {
-				end.append(target.incrementAffection(Main.game.getPlayer(), -1));
-				if(isOwnedSlave(target)) {
-					end.append(target.incrementObedience(-1, false));
-				}
-			}
-		}
-		Main.game.getTextEndStringBuilder().append(end.toString());
-	}
-
-	private static String page() {
-		GameCharacter target = target();
-		int cleanliness = Math.round(target.getAttributeValue(Attribute.CLEANLINESS));
-		String mood;
-		if(target.isPlayer()) {
-			mood = "This is you";
-		} else if(isWilling(target)) {
-			mood = "Willing";
-		} else {
-			mood = "Unwilling";
-		}
-		StringBuilder sb = new StringBuilder();
-		sb.append("<p style='text-align:center;'><b style='color:")
-				.append(PresetColour.ATTRIBUTE_CLEANLINESS.toWebHexString())
-				.append(";'>[npc.Name]</b> — cleanliness ")
-				.append(cleanliness)
-				.append(". ")
-				.append(mood)
-				.append(".</p>");
-		if(lastProse == null) {
-			sb.append(opening(target));
-		} else {
-			sb.append(lastProse);
-		}
-		return sb.toString();
-	}
-
-	private static String opening(GameCharacter target) {
-		List<String> filthy = new ArrayList<>();
-		for(BathArea area : BathArea.values()) {
-			if(area.isAvailable(target) && area.isFilthy(target)) {
-				filthy.add(area.getPartTag());
-			}
-		}
-		String whoLine;
-		if(target.isPlayer()) {
-			whoLine = "You step into the ensuite and start the water.";
-		} else if(mustInsist(target)) {
-			whoLine = "[npc.Name] is here, and [npc.she] does not want you washing [npc.herHim].";
-		} else if(isWilling(target)) {
-			whoLine = "[npc.Name] joins you in the ensuite, and the water is already running.";
-		} else {
-			whoLine = "[npc.Name] is in the water with you, and [npc.she] is not happy about it.";
-		}
-		String dirt;
-		if(filthy.isEmpty()) {
-			dirt = " Nothing on [npc.herHim] is stained. A wash will still freshen [npc.her] skin.";
-		} else {
-			dirt = " Stained: " + Util.stringsToStringList(filthy, false) + ".";
-		}
-		AbstractItem soap = selectedSoap();
-		String soapLine = soap == null
-				? ""
-				: " The " + soap.getName(false, false) + " is within reach.";
-		return "<p>" + whoLine + dirt + soapLine + "</p>";
-	}
-
-	private static boolean isSweaty(GameCharacter target, BathArea area) {
-		return target.getAttributeValue(Attribute.CLEANLINESS) < 70
-				&& !scrubbed.contains(target.getId() + "|" + area.name());
-	}
-
-	private static boolean canMove(GameCharacter target, Map.Entry<AbstractClothing, DisplacementType> blocking) {
 		AbstractClothing clothing = blocking.getKey();
-		GameCharacter player = Main.game.getPlayer();
 		if(blocking.getValue() == DisplacementType.REMOVE_OR_EQUIP) {
-			return target.isAbleToUnequip(clothing, true, player);
+			return player.isAbleToUnequip(clothing, true, player);
 		}
-		return target.isAbleToBeDisplaced(clothing, blocking.getValue(), false, true, player);
+		return player.isAbleToBeDisplaced(clothing, blocking.getValue(), false, true, player);
 	}
 
-	private static boolean mustInsist(GameCharacter target) {
-		return !target.isPlayer() && !isOwnedSlave(target) && target.getAffection(Main.game.getPlayer()) < 0
-				&& !insistedIds.contains(target.getId());
-	}
-
-	private static boolean isWilling(GameCharacter target) {
-		if(target.isPlayer()) {
-			return true;
+	private static List<BathTab> tabs() {
+		List<BathTab> tabs = new ArrayList<>();
+		tabs.add(BathTab.HEAD);
+		tabs.add(BathTab.BODY);
+		tabs.add(BathTab.LOWER);
+		if(hasExtra()) {
+			tabs.add(BathTab.EXTRA);
 		}
-		if(isOwnedSlave(target)) {
-			return target.getObedienceValue() >= 50;
-		}
-		return target.getAffection(Main.game.getPlayer()) >= 0;
+		tabs.add(BathTab.POSITION);
+		tabs.add(BathTab.PACE);
+		tabs.add(BathTab.OPTIONS);
+		return tabs;
 	}
 
-	private static boolean isOwnedSlave(GameCharacter target) {
-		return target.isSlave() && target.getOwner() != null && target.getOwner().isPlayer();
-	}
-
-	private static int scrubsOf(GameCharacter target) {
-		Integer count = scrubs.get(target.getId());
-		return count == null ? 0 : count;
-	}
-
-	private static AbstractItem selectedSoap() {
-		List<AbstractItem> soaps = soaps();
-		if(soapIndex < 0 || soapIndex >= soaps.size()) {
+	private static BathTab tabAt(int index) {
+		List<BathTab> tabs = tabs();
+		if(index < 0 || index >= tabs.size()) {
 			return null;
 		}
-		return soaps.get(soapIndex);
-	}
-
-	private static List<AbstractItem> soaps() {
-		List<AbstractItem> found = new ArrayList<>();
-		Set<String> seen = new HashSet<>();
-		for(Map.Entry<AbstractItem, Integer> entry : Main.game.getPlayer().getAllItemsInInventory().entrySet()) {
-			if(entry.getValue() == null || entry.getValue() <= 0) {
-				continue;
-			}
-			AbstractItem item = entry.getKey();
-			String id = item.getItemType().getId();
-			if(id != null && id.startsWith("oyana_soap_") && seen.add(id)) {
-				found.add(item);
-			}
-		}
-		return found;
-	}
-
-	private static void ensureSession() {
-		List<GameCharacter> people = who();
-		GameCharacter found = null;
-		if(targetId != null) {
-			for(GameCharacter character : people) {
-				if(character.getId().equals(targetId)) {
-					found = character;
-					break;
-				}
-			}
-		}
-		if(found == null) {
-			found = Main.game.getPlayer();
-			lastProse = null;
-		}
-		targetId = found.getId();
-	}
-
-	private static GameCharacter target() {
-		if(targetId != null) {
-			for(GameCharacter character : who()) {
-				if(character.getId().equals(targetId)) {
-					return character;
-				}
-			}
-		}
-		return Main.game.getPlayer();
-	}
-
-	private static List<GameCharacter> who() {
-		GameCharacter player = Main.game.getPlayer();
-		Map<String, GameCharacter> people = new HashMap<>();
-		List<GameCharacter> ordered = new ArrayList<>();
-		addPerson(ordered, people, player);
-		for(GameCharacter companion : player.getCompanions()) {
-			if(companion != null
-					&& companion.getWorldLocation() == player.getWorldLocation()
-					&& companion.getLocation().equals(player.getLocation())) {
-				addPerson(ordered, people, companion);
-			}
-		}
-		for(NPC present : LilayaHomeGeneric.getSlavesAndOccupantsPresent()) {
-			addPerson(ordered, people, present);
-		}
-		return ordered;
-	}
-
-	private static void addPerson(List<GameCharacter> ordered, Map<String, GameCharacter> people, GameCharacter character) {
-		if(character != null && people.put(character.getId(), character) == null) {
-			ordered.add(character);
-		}
+		return tabs.get(index);
 	}
 
 	private static boolean hasExtra() {
+		GameCharacter player = Main.game.getPlayer();
 		for(BathArea area : BathArea.values()) {
-			if(area.getTab() == BathTab.EXTRA && area.isAvailable(target())) {
+			if(area.getTab() == BathTab.EXTRA && area.isAvailable(player)) {
 				return true;
 			}
 		}
 		return false;
 	}
 
-	private static BathTab tabAt(int index) {
-		if(mustInsist(target())) {
-			return index == 0 ? BathTab.OPTIONS : null;
-		}
-		if(index == 0) {
-			return BathTab.HEAD;
-		}
-		if(index == 1) {
-			return BathTab.BODY;
-		}
-		if(index == 2) {
-			return BathTab.LOWER;
-		}
-		if(hasExtra()) {
-			if(index == 3) {
-				return BathTab.EXTRA;
+	private static List<BathAction> actionsOn(BathTab tab) {
+		GameCharacter player = Main.game.getPlayer();
+		List<BathAction> found = new ArrayList<>();
+		for(BathAction action : BathActionManager.getAll()) {
+			if(!action.isShown(player)) {
+				continue;
 			}
-			if(index == 4) {
-				return BathTab.OPTIONS;
+			if(tabFor(action) != tab) {
+				continue;
 			}
-			return null;
+			found.add(action);
 		}
-		if(index == 3) {
-			return BathTab.OPTIONS;
-		}
-		return null;
+		found.sort(Comparator
+				.comparingInt((BathAction action) -> action.getCategory() == BathCategory.SOAK ? -1 : 0)
+				.thenComparingInt(BathDialogue::orderOf)
+				.thenComparingInt(BathAction::getButtonPriority)
+				.thenComparingInt(action -> action.getCategory() == BathCategory.DEEP ? 1 : 0));
+		return found;
 	}
 
-	private static List<BathArea> areasOn(BathTab tab) {
-		GameCharacter target = target();
-		List<BathArea> areas = new ArrayList<>();
-		for(BathArea area : BathArea.values()) {
-			if(area.getTab() == tab && area.isAvailable(target)) {
-				areas.add(area);
-			}
+	private static int orderOf(BathAction action) {
+		if(action.getSetsPosition() != null) {
+			return action.getSetsPosition().ordinal();
 		}
-		return areas;
+		if(action.getSetsPace() != null) {
+			return action.getSetsPace().ordinal();
+		}
+		if(action.getArea() != null) {
+			return action.getArea().ordinal();
+		}
+		return 0;
+	}
+
+	private static BathTab tabFor(BathAction action) {
+		switch(action.getCategory()) {
+			case POSITION:
+				return BathTab.POSITION;
+			case PACE:
+				return BathTab.PACE;
+			case SOAK:
+				return BathTab.LOWER;
+			case DEEP:
+			case WASH:
+			default:
+				if(action.getArea() == null) {
+					return BathTab.BODY;
+				}
+				return action.getArea().getTab();
+		}
 	}
 }

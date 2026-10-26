@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>ARMPITS</area>
+	<title><![CDATA[Wash armpits]]></title>
+	<tooltip><![CDATA[Lift the arms and wash the armpits.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(lift)] one [npc.arm] and [npc.verb(wash)] [npc.her] [npc.armpit], slow enough to get the hair and the crease, then [npc.verb(switch)] sides. The smell of the day comes up with the water and then goes down the drain. [npc.speech(Both of them. I know they need it.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(lift)] [npc.her] [npc.arms] and [npc.verb(let)] the hot water run straight into [npc.her] [npc.armpits], washing them with a lazy hand. [npc.She] [npc.verb(hum)] at the relief of getting the sweat out. [npc.speech(Oh, that is the bit I could smell. Keep going.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(jam)] a hand into each [npc.armpit] in turn and [npc.verb(scrub)] until the skin is pink, then [npc.verb(rinse)] and [npc.verb(drop)] [npc.her] [npc.arms]. [npc.speech(Scrub it. I am not walking around smelling of that.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

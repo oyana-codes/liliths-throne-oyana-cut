@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>POSITION</category>
+	<setsPosition>LEG_UP</setsPosition>
+	<title><![CDATA[Leg up]]></title>
+	<tooltip><![CDATA[Prop one foot up to reach between the legs. Half a minute. Needs two legs.]]></tooltip>
+	<seconds>30</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(prop)] one foot up and [npc.verb(open)] the way to what sitting only half reached. Water runs down the raised [npc.leg] and between [npc.her] thighs. [npc.speech(There. I can get between them now.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(hook)] a foot up and [npc.verb(bare)] [npc.herHim] to the water, a little breathless at how exposed the pose is. [npc.speech(Wide open. The water can get everywhere like this.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(jam)] a foot up onto the edge and [npc.verb(hold)] it there, impatient to reach and be finished. [npc.speech(Leg up. Wash it. I am not holding this all day.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

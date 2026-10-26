@@ -49,6 +49,7 @@ import com.lilithsthrone.controller.TooltipUpdateThread;
 import com.lilithsthrone.controller.eventListeners.tooltips.TooltipInformationEventListener;
 import com.lilithsthrone.controller.xmlParsing.XMLUtil;
 import com.lilithsthrone.game.character.CharacterImportSetting;
+import com.lilithsthrone.game.character.CleanlinessLiving;
 import com.lilithsthrone.game.character.CharacterUtils;
 import com.lilithsthrone.game.character.EquipClothingSetting;
 import com.lilithsthrone.game.character.GameCharacter;
@@ -1494,6 +1495,8 @@ public class Game implements XMLSaving {
 						}
 					}
 				}
+
+				CleanlinessLiving.catchUpLoadedWorld();
 
 				if(debug) {
 					System.out.println("NPCs finished: "+ (System.nanoTime()-time)/1000000000d);
@@ -2971,14 +2974,24 @@ public class Game implements XMLSaving {
 			System.out.println("companions done");
 		}
 
-		// Wash scent ages, and worn clothes pick up soil, for the player and whoever is in the room. The rest of the city is left alone.
+		// Clothing soil stays with the people in the room. Cleanliness moves for everyone out in the world.
 		if(secondsPassedThisTurn>0 && player!=null) {
+			Set<String> withPlayer = new HashSet<>();
+			for(NPC npc : getCharactersPresent()) {
+				withPlayer.add(npc.getId());
+			}
 			player.ageFreshScents(secondsPassedThisTurn);
 			player.soilWornClothes(secondsPassedThisTurn);
 			player.wearCleanliness(secondsPassedThisTurn);
-			for(NPC npc : getCharactersPresent()) {
-				npc.ageFreshScents(secondsPassedThisTurn);
-				npc.soilWornClothes(secondsPassedThisTurn);
+			for(NPC npc : new ArrayList<>(NPCMap.values())) {
+				boolean here = withPlayer.contains(npc.getId());
+				if(!here && !CleanlinessLiving.isOutInTheWorld(npc)) {
+					continue;
+				}
+				if(here) {
+					npc.ageFreshScents(secondsPassedThisTurn);
+					npc.soilWornClothes(secondsPassedThisTurn);
+				}
 				npc.wearCleanliness(secondsPassedThisTurn);
 			}
 		}
@@ -3379,12 +3392,19 @@ public class Game implements XMLSaving {
 			}
 			for(int i=1; i<=hoursPassed; i++) {
 				int incrementedHourOfDay = (startHourOfDay + i) % 24;
+				Set<String> withPlayer = new HashSet<>();
+				for(NPC present : getCharactersPresent()) {
+					withPlayer.add(present.getId());
+				}
 				for(NPC npc : NPCMap.values()) {
 					boolean inGame = !npc.getLocationPlace().getPlaceType().equals(PlaceType.GENERIC_EMPTY_TILE)
 							|| (npc instanceof Elemental && ((Elemental)npc).getSummoner()!=null && ((Elemental)npc).getSummoner().isElementalSummoned());
 					
 					// Hourly effects:
 					npc.hourlyUpdate(incrementedHourOfDay);
+					if(inGame && !withPlayer.contains(npc.getId())) {
+						CleanlinessLiving.applyHour(npc, incrementedHourOfDay, false);
+					}
 					if(inGame) {
 						npc.performHourlyFluidsCheck();
 					}
@@ -5624,6 +5644,9 @@ public class Game implements XMLSaving {
 		
 		// Set locations after the NPC has the correct id:
 		npc.setLocation(npc.getWorldLocation(), npc.getLocation(), false);
+		if(!isImported) {
+			CleanlinessLiving.applySpawnValue(npc);
+		}
 		npc.setHomeLocation(npc.getHomeWorldLocation(), npc.getHomeLocation());
 		
 		return npc.getId();

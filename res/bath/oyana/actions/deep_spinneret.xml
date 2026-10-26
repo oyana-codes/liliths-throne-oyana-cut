@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>DEEP</category>
+	<area>SPINNERET</area>
+	<title><![CDATA[Clean spinneret deeper]]></title>
+	<tooltip><![CDATA[Rinse inside the spinneret.]]></tooltip>
+	<seconds>120</seconds>
+	<buttonPriority>5</buttonPriority>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(work)] a little warm water into [npc.her] [npc.spinneret], past the opening, and [npc.verb(let)] it run back out until nothing cloudy follows. [npc.She] [npc.verb(keep)] [npc.her] touch light. [npc.speech(Inside the opening. A wipe is not enough.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(let)] hot water push into [npc.her] [npc.spinneret] and [npc.verb(coax)] it back out with a careful finger, shivering at how much [npc.she] [npc.verb(feel)]. [npc.speech(Careful, but deeper. I want it clear.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(flush)] [npc.her] [npc.spinneret] out in a few firm rinses and [npc.verb(stop)] the moment it runs clear. [npc.speech(Out. That is as deep as I am going.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

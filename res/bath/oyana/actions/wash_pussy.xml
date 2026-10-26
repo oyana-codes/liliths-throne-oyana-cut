@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>PUSSY</area>
+	<title><![CDATA[Wash pussy]]></title>
+	<tooltip><![CDATA[Rinse between the thighs until the water runs clear.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(wash)] between [npc.her] thighs and over [npc.her] [npc.pussy], parting [npc.herHim] just enough to rinse what had collected on [npc.her] [npc.labia]. The water runs clear after a moment. [npc.She] [npc.verb(stay)] gentle about it. [npc.speech(Just enough to rinse. I can feel how sensitive it is.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(spread)] [npc.her] thighs and [npc.verb(let)] the hot water run over [npc.her] [npc.pussy], washing slowly with two fingers. A shiver goes through [npc.herHim], and [npc.she] [npc.verb(let)] out [npc.a_moan+]. [npc.speech(Slow. That is sensitive, and I want to feel it.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(rinse)] [npc.her] [npc.pussy] in a few brisk passes, parting [npc.herHim] only as long as it takes to get the mess off, then [npc.verb(move)] on. [npc.speech(Rinse it out and leave it. I am not playing with myself.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

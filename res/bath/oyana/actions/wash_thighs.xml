@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>THIGHS</area>
+	<title><![CDATA[Wash thighs]]></title>
+	<tooltip><![CDATA[Wash the thighs, inside and out.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(wash)] [npc.her] thighs, outside first and then the softer skin on the inside, where sweat and anything else has clung. [npc.She] [npc.verb(rinse)] until [npc.her] hands come away clean. [npc.speech(Inside as well. That is the part that sticks.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(slide)] both hands up the inside of [npc.her] thighs, hot water following, and [npc.verb(let)] out a quiet [npc.moan] at how good the heat is there. [npc.She] [npc.verb(take)] [npc.her] time about reaching the top. [npc.speech(Higher. The water feels wonderful on the soft bit.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(scrub)] [npc.her] thighs inside and out and [npc.verb(rinse)] them before the water can feel like anything but work. [npc.speech(Clean. Next.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

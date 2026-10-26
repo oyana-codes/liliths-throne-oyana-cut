@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import com.lilithsthrone.game.PropertyValue;
 import com.lilithsthrone.game.character.FluidStored;
+import com.lilithsthrone.game.character.CleanlinessLiving;
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.PlayerCharacter;
 import com.lilithsthrone.game.character.attributes.ArousalLevel;
@@ -2256,8 +2257,45 @@ public class Sex {
 //			}
 //			sceneRecording
 		}
-		
+
+		applyCleanlinessFromTurn();
 		turn++;
+	}
+
+	/** A sex turn is only twenty seconds, so the hourly wear would barely show. Pay for the exertion here. */
+	private void applyCleanlinessFromTurn() {
+		if(lastUsedSexAction.get(Main.game.getPlayer())==GenericActions.PLAYER_SKIP_SEX) {
+			for(GameCharacter character : getAllParticipants(false)) {
+				int orgasms = Math.max(1, getNumberOfOrgasms(character));
+				CleanlinessLiving.drop(character, 8+(4*orgasms));
+			}
+			return;
+		}
+		for(GameCharacter character : getAllParticipants(false)) {
+			SexActionInterface action = lastUsedSexAction.get(character);
+			if(action==null || action.getActionType()==null || !sweats(action.getActionType())) {
+				continue;
+			}
+			CleanlinessLiving.drop(character, action.getActionType()==SexActionType.ORGASM ? 3 : 1);
+		}
+	}
+
+	private static boolean sweats(SexActionType type) {
+		switch(type) {
+			case ONGOING:
+			case START_ONGOING:
+			case START_ADDITIONAL_ONGOING:
+			case STOP_ONGOING:
+			case REQUIRES_EXPOSED:
+			case REQUIRES_NO_PENETRATION:
+			case REQUIRES_NO_PENETRATION_AND_EXPOSED:
+			case ORGASM:
+			case ORGASM_DENIAL:
+			case PREPARE_FOR_PARTNER_ORGASM:
+				return true;
+			default:
+				return false;
+		}
 	}
 
 	public void recalculateSexActions() {

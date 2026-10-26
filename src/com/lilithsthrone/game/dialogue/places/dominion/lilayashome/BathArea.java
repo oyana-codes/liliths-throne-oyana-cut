@@ -8,7 +8,9 @@ import java.util.Map;
 
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.body.CoverableArea;
+import com.lilithsthrone.game.character.body.valueEnums.LegConfiguration;
 import com.lilithsthrone.game.inventory.InventorySlot;
+import com.lilithsthrone.game.inventory.ItemTag;
 import com.lilithsthrone.game.inventory.clothing.AbstractClothing;
 import com.lilithsthrone.game.inventory.clothing.DisplacementType;
 import com.lilithsthrone.game.sex.SexAreaOrifice;
@@ -73,7 +75,7 @@ public enum BathArea {
 	WINGS(BathTab.EXTRA, "Wash wings", "Uncover wings", "[npc.wings]", null, null, InventorySlot.WINGS, false,
 			new InventorySlot[] { InventorySlot.WINGS },
 			new SexAreaOrifice[] {}),
-	SPINNERET(BathTab.EXTRA, "Wash spinneret", "Uncover spinneret", "[npc.spinneret]", null, null, null, false,
+	SPINNERET(BathTab.EXTRA, "Wash spinneret", "Uncover spinneret", "[npc.spinneret]", null, null, null, true,
 			new InventorySlot[] {},
 			new SexAreaOrifice[] { SexAreaOrifice.SPINNERET });
 
@@ -151,6 +153,56 @@ public enum BathArea {
 		}
 	}
 
+	/**
+	 * True when this part sits on a feral half the hands cannot reach.
+	 * Centaurs are quadrupedal. Driders are arachnid. The same test covers the other taur bodies.
+	 */
+	public boolean isHardToReach(GameCharacter character) {
+		LegConfiguration legs = character.getLegConfiguration();
+		switch(this) {
+			case COCK:
+			case PUSSY:
+			case MOUND:
+			case ASS:
+				return !legs.isBipedalPositionedGenitals();
+			case CROTCH:
+				return !legs.isBipedalPositionedCrotchBoobs();
+			case THIGHS:
+			case LEGS:
+			case TAIL:
+				return legs != LegConfiguration.BIPEDAL;
+			case SPINNERET:
+				return true;
+			default:
+				return false;
+		}
+	}
+
+	/** Groin and rear are awkward while standing, even on a biped. */
+	public boolean isGroinOrRear() {
+		return this == COCK || this == PUSSY || this == MOUND || this == ASS;
+	}
+
+	/** Parts a bath covers, including the ones hands may not reach. */
+	public boolean isSubmerged() {
+		switch(this) {
+			case CHEST:
+			case STOMACH:
+			case COCK:
+			case PUSSY:
+			case MOUND:
+			case ASS:
+			case THIGHS:
+			case LEGS:
+			case CROTCH:
+			case TAIL:
+			case SPINNERET:
+				return true;
+			default:
+				return false;
+		}
+	}
+
 	public String getWashTitle() {
 		if(this == ASS && !Main.game.isAnalContentEnabled()) {
 			return "Wash rear";
@@ -170,6 +222,91 @@ public enum BathArea {
 			return "rear";
 		}
 		return partTag;
+	}
+
+	public String getDeepTitle() {
+		switch(this) {
+			case PUSSY:
+				return "Clean pussy deeper";
+			case COCK:
+				return "Clean cock deeper";
+			case ASS:
+				return Main.game.isAnalContentEnabled() ? "Clean ass deeper" : "Clean rear deeper";
+			case CHEST:
+				return "Clean nipples deeper";
+			case CROTCH:
+				return "Clean crotch nipples deeper";
+			case SPINNERET:
+				return "Clean spinneret deeper";
+			default:
+				return "Clean deeper";
+		}
+	}
+
+	/**
+	 * Orifices a deeper rinse can empty. The mouth is a surface rinse, handled by washing the face.
+	 * The ass entry is omitted when anal content is off, so the button and the prose never name it.
+	 */
+	public List<SexAreaOrifice> getDeepOrifices() {
+		List<SexAreaOrifice> found = new ArrayList<>();
+		switch(this) {
+			case PUSSY:
+				found.add(SexAreaOrifice.VAGINA);
+				found.add(SexAreaOrifice.URETHRA_VAGINA);
+				break;
+			case COCK:
+				if(Main.game.isUrethraEnabled()) {
+					found.add(SexAreaOrifice.URETHRA_PENIS);
+				}
+				break;
+			case ASS:
+				if(Main.game.isAnalContentEnabled()) {
+					found.add(SexAreaOrifice.ANUS);
+				}
+				break;
+			case CHEST:
+				found.add(SexAreaOrifice.NIPPLE);
+				break;
+			case CROTCH:
+				found.add(SexAreaOrifice.NIPPLE_CROTCH);
+				break;
+			case SPINNERET:
+				found.add(SexAreaOrifice.SPINNERET);
+				break;
+			default:
+				break;
+		}
+		return found;
+	}
+
+	/** True when this body has an orifice here that can be rinsed out, and the content options allow it. */
+	public boolean supportsDeepClean(GameCharacter character) {
+		return isAvailable(character) && !getDeepOrifices().isEmpty();
+	}
+
+	/**
+	 * A plug or a seal blocks the deeper rinse. The outside can still be washed.
+	 * Crotch nipples use the same nipple plug and seal tags as chest nipples.
+	 */
+	public boolean isDeepBlocked(GameCharacter character) {
+		for(SexAreaOrifice orifice : getDeepOrifices()) {
+			if(character.isOrificePlugged(orifice)) {
+				return true;
+			}
+			if(orifice == SexAreaOrifice.NIPPLE_CROTCH && wearsNippleBlock(character)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private static boolean wearsNippleBlock(GameCharacter character) {
+		for(AbstractClothing clothing : character.getClothingCurrentlyEquipped()) {
+			if(clothing.getItemTags().contains(ItemTag.PLUGS_NIPPLES) || clothing.getItemTags().contains(ItemTag.SEALS_NIPPLES)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean isFilthy(GameCharacter target) {

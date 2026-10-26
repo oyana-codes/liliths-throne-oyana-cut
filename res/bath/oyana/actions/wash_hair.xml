@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>HAIR</area>
+	<title><![CDATA[Wash hair]]></title>
+	<tooltip><![CDATA[Work water through the hair until it runs clear.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(tip)] [npc.her] head back and [npc.verb(work)] both hands through [npc.her] [npc.hair], slow, from the scalp out to the ends. The first rinse runs cloudy. [npc.She] [npc.verb(stay)] under it until the water is clear and [npc.her] scalp feels bare. [npc.speech(From the roots. I can still feel the day in it.)]]]></text>
+			<text><![CDATA[[npc.Name] [npc.verb(soak)] [npc.her] [npc.hair] and [npc.verb(comb)] it with [npc.her] fingers, parting it so the water reaches the skin underneath. A few strands stick to [npc.her] neck. [npc.She] [npc.verb(peel)] them free and [npc.verb(rinse)] them again. [npc.speech(Once more. The ends are still holding onto it.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(duck)] under the spray and [npc.verb(rake)] both hands through [npc.her] [npc.hair], humming as the heat soaks into [npc.her] scalp. Suds slide down [npc.her] neck and over [npc.her] shoulders, and [npc.she] [npc.verb(let)] out [npc.a_moan+] without meaning to. [npc.speech(Gods, leave me under this. I needed it.)]]]></text>
+			<text><![CDATA[[npc.Name] [npc.verb(wring)] [npc.her] [npc.hair] out just so [npc.she] can wet it again, grinning into the steam. Hot water runs over [npc.her] face and [npc.she] [npc.verb(laugh)] when it gets in [npc.her] mouth. [npc.speech(Do that again. I am not done being warm.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(grab)] a handful of [npc.her] [npc.hair] and [npc.verb(scrub)] the scalp hard enough to tug, then [npc.verb(rinse)] it in a rush. Water sheets off [npc.herHim]. [npc.She] [npc.verb(shake)] the rest out and [npc.verb(leave)] it messy. [npc.speech(Get it clean. I am not standing here all day.)]]]></text>
+			<text><![CDATA[[npc.Name] [npc.verb(rake)] [npc.her] fingers through [npc.her] [npc.hair] like [npc.she] [npc.verb(want)] the dirt out by force, then [npc.verb(shove)] [npc.her] head under the water until it runs clear. [npc.speech(Enough. It is clean. Move on.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

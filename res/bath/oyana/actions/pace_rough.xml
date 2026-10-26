@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>PACE</category>
+	<setsPace>ROUGH</setsPace>
+	<title><![CDATA[Roughly]]></title>
+	<tooltip><![CDATA[Set the default pace to rough. A part you have already washed still offers all three.]]></tooltip>
+	<seconds>0</seconds>
+	<descriptions>
+		<description>
+			<text><![CDATA[[npc.Name] [npc.verb(set)] [npc.her] jaw and [npc.verb(scrub)] harder at the next thing [npc.her] hands find. The gentleness goes out of it. [npc.speech(No fuss. Scrub it off and be done.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

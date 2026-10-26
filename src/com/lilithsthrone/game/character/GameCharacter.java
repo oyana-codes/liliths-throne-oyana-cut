@@ -9038,6 +9038,11 @@ public abstract class GameCharacter implements XMLSaving {
 		boolean extendedDescription = flags.contains(GenericSexFlag.EXTENDED_DESCRIPTION_NEEDED);
 		
 		boolean partnerPresent = partner!=null;
+
+		// Off-screen sex (a client, the stocks) dirties the body. A scene already in progress pays that on each sex turn instead.
+		if(!(Main.game.isInSex() && Main.sex.getAllParticipants().contains(this))) {
+			CleanlinessLiving.drop(this, includesOrgasm ? 12 : 8);
+		}
 		
 		boolean condomAbleToBeAdded = true;
 		if(partnerPresent && Main.game.isInSex()) {
@@ -24317,6 +24322,7 @@ public abstract class GameCharacter implements XMLSaving {
 		if(wornClothesShowSoil()) {
 			tenthsPerTick += 2;
 		}
+		tenthsPerTick += CleanlinessLiving.extraTenths(this);
 		long lossBank = (long) cleanlinessLossFraction + (long) ticks * tenthsPerTick;
 		cleanlinessLossFraction = (int) (lossBank % 10);
 		int loss = (int) (lossBank / 10);

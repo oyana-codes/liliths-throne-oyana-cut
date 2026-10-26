@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>ASS</area>
+	<title><![CDATA[Wash ass]]></title>
+	<tooltip><![CDATA[Wash the rear until the water runs clean.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<gate>ANAL</gate>
+			<text><![CDATA[[npc.Name] [npc.verb(wash)] over [npc.her] [npc.ass] and between the cheeks, rinsing [npc.her] [npc.asshole] until the water runs clean. [npc.Her] fingers stay at the work of washing, circling once and then moving on. [npc.speech(Between the cheeks, then rinse. I want it actually clean.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<gate>ANAL</gate>
+			<text><![CDATA[[npc.Name] [npc.verb(spread)] [npc.her] cheeks and [npc.verb(let)] the hot water run over [npc.her] [npc.ass] and [npc.her] [npc.asshole]. [npc.She] [npc.verb(wash)] slowly, and a shaky [npc.moan] slips out of [npc.herHim]. [npc.speech(Easy. I can feel all of that. Do not stop yet.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<gate>ANAL</gate>
+			<text><![CDATA[[npc.Name] [npc.verb(scrub)] between the cheeks and over [npc.her] [npc.asshole], firm and quick, then [npc.verb(rinse)] hard. [npc.She] [npc.verb(hiss)] and [npc.verb(finish)] the job anyway. [npc.speech(Scrub it and finish. I am not lingering back there.)]]]></text>
+		</description>
+		<description>
+			<pace>NORMAL</pace>
+			<gate>NO_ANAL</gate>
+			<text><![CDATA[[npc.Name] [npc.verb(wash)] over [npc.her] rear and between the cheeks, rinsing until the water runs clean. [npc.She] [npc.verb(take)] the time to get the crease and then [npc.verb(let)] the water carry it off. [npc.speech(Between the cheeks, then rinse.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<gate>NO_ANAL</gate>
+			<text><![CDATA[[npc.Name] [npc.verb(let)] the hot water run over [npc.her] rear and between the cheeks, washing slowly, enjoying the heat on sensitive skin. [npc.speech(That heat is lovely. Leave it there a moment.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<gate>NO_ANAL</gate>
+			<text><![CDATA[[npc.Name] [npc.verb(scrub)] [npc.her] rear and between the cheeks, then [npc.verb(rinse)] and [npc.verb(move)] on. [npc.speech(Scrub it and finish.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

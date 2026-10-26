@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>ARMS</area>
+	<title><![CDATA[Wash arms]]></title>
+	<tooltip><![CDATA[Wash from the shoulder to the hands.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(wash)] along one [npc.arm], shoulder to wrist, then [npc.verb(switch)] and [npc.verb(do)] the other. [npc.She] [npc.verb(rinse)] [npc.her] [npc.hands], between the fingers, until the skin feels bare again. [npc.speech(Shoulder, then wrist, then the hands. They get the worst of it.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(stretch)] both [npc.arms] into the heat and [npc.verb(soap)] them slowly, watching the water run down to [npc.her] fingers. [npc.She] [npc.verb(flex)] [npc.her] [npc.hands] under the spray and [npc.verb(sigh)]. [npc.speech(Even my arms were tired. This is better.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(scrub)] both [npc.arms] in long hard strokes and [npc.verb(rinse)] [npc.her] [npc.hands] like [npc.she] [npc.verb(want)] the skin off with the dirt. [npc.speech(Done. They are clean enough.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

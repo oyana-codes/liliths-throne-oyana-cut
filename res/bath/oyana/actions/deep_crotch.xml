@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>DEEP</category>
+	<area>CROTCH</area>
+	<title><![CDATA[Clean crotch nipples deeper]]></title>
+	<tooltip><![CDATA[Rinse inside the crotch nipples. Unavailable while they are plugged or sealed.]]></tooltip>
+	<seconds>120</seconds>
+	<buttonPriority>5</buttonPriority>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(lift)] [npc.her] [npc.breastsCrotch] and [npc.verb(work)] warm water into the nipples, rinsing out what had gathered inside. Whatever was inside threads away into the water. [npc.She] [npc.verb(take)] each one in turn. [npc.speech(These too. They store more than the ones on my chest.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(cup)] [npc.her] [npc.breastsCrotch] and [npc.verb(work)] hot water into the nipples, slow, moaning when they start to give up what they were holding. [npc.speech(Oh. Deeper. They ache when they are full.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(squeeze)] the crotch nipples and [npc.verb(flush)] them until they run clear, then [npc.verb(let)] them go. [npc.speech(Empty. I am not carrying that around.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>FACE</area>
+	<title><![CDATA[Wash face]]></title>
+	<tooltip><![CDATA[Wash the face, then rinse the mouth and spit into the drain.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(cup)] warm water over [npc.her] face and [npc.verb(wipe)] carefully around [npc.her] [npc.eyes], then down the sides of [npc.her] nose and over [npc.her] [npc.lips]. [npc.She] [npc.verb(rinse)] [npc.her] mouth, [npc.verb(swill)] it, and [npc.verb(spit)] into the drain until the taste of the day is gone. [npc.speech(Eyes first. Then the mouth. I can still taste it.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(press)] [npc.her] whole face into the hot water and [npc.verb(come)] up dripping, smiling, steam on [npc.her] [npc.lips]. [npc.She] [npc.verb(rinse)] [npc.her] mouth and [npc.verb(spit)] clean, then [npc.verb(do)] it again just for the heat. [npc.speech(Hot water on my face. Yes. Again.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(scrub)] [npc.her] face with the heel of [npc.her] hand, hard across the cheeks and around [npc.her] mouth, then [npc.verb(rinse)] and [npc.verb(spit)] without lingering. Water runs off [npc.her] chin. [npc.speech(Spit, and we are moving on. I am not prettying it up.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

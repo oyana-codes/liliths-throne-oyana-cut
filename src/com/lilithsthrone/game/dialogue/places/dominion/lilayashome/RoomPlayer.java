@@ -328,7 +328,7 @@ public class RoomPlayer {
 
 			} else if(index==5) {
 				return new Response("Wash",
-						"Wash yourself, or someone here, one part at a time. Clothes are not washed.",
+						"Strip, choose a pace, then wash one part at a time. A part you wash again offers that wash plain, plus an eager and a rough version. The log keeps every action. Clothes are left in the bag and are not washed. Washing a sensitive part, such as breasts, genitals, a rear, a spinneret, or crotch-boobs, raises the arousal bar. At the edge you can orgasm, prepare, or deny.",
 						BathDialogue.WASH) {
 					@Override
 					public void effects() {

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>DEEP</category>
+	<area>CHEST</area>
+	<title><![CDATA[Clean nipples deeper]]></title>
+	<tooltip><![CDATA[Rinse inside the nipples. Unavailable while they are plugged or sealed.]]></tooltip>
+	<seconds>120</seconds>
+	<buttonPriority>5</buttonPriority>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(pinch)] one of [npc.her] [npc.nipples] between wet fingers and [npc.verb(work)] warm water into it, then the other, rinsing out whatever had gathered inside. [npc.She] [npc.verb(keep)] the pressure light. [npc.speech(Inside the nipples too. They hold onto it.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(roll)] [npc.her] [npc.nipples] under the hot water and [npc.verb(work)] it into them, slow, until the heat, and anything they were holding, comes back out. [npc.She] [npc.verb(let)] out [npc.a_moan+] and [npc.verb(do)] it again. [npc.speech(Sensitive. Keep going. I want them empty and warm.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(squeeze)] [npc.her] [npc.nipples] and [npc.verb(flush)] them out, one then the other, until nothing else comes. [npc.She] [npc.verb(hiss)] and [npc.verb(rinse)] them off. [npc.speech(Empty them. I am not leaving anything in there.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

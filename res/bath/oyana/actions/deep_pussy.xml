@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>DEEP</category>
+	<area>PUSSY</area>
+	<title><![CDATA[Clean pussy deeper]]></title>
+	<tooltip><![CDATA[Rinse inside. Unavailable while a plug or a seal is in the way.]]></tooltip>
+	<seconds>120</seconds>
+	<buttonPriority>5</buttonPriority>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<descriptionConditional><![CDATA[[#game.isUrethraEnabled()]]]></descriptionConditional>
+			<text><![CDATA[[npc.Name] [npc.verb(part)] [npc.her] [npc.labia] and [npc.verb(work)] warm water into [npc.her] [npc.pussy], then a little deeper, until it runs back out clear. [npc.She] [npc.verb(rinse)] the urethra as well, careful, and [npc.verb(let)] it all drain. [npc.speech(Inside too. I can feel it sitting in there.)]]]></text>
+		</description>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(part)] [npc.her] [npc.labia] and [npc.verb(work)] warm water into [npc.her] [npc.pussy] until it runs back out clear. [npc.She] [npc.verb(keep)] the touch to washing, and [npc.verb(stay)] with it until nothing cloudy comes out. [npc.speech(Inside too. A surface rinse is not enough.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<descriptionConditional><![CDATA[[#game.isUrethraEnabled()]]]></descriptionConditional>
+			<text><![CDATA[[npc.Name] [npc.verb(slide)] two fingers into [npc.her] [npc.pussy] with the hot water and [npc.verb(work)] it deeper, rinsing [npc.herHim] out, urethra included. [npc.She] [npc.verb(let)] out [npc.a_moan+] and [npc.verb(enjoy)] more than the cleanliness of it. [npc.speech(Deeper. I want the water in me, not just on me.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(slide)] two fingers into [npc.her] [npc.pussy] with the hot water and [npc.verb(work)] it deeper, rinsing [npc.herHim] out. [npc.She] [npc.verb(let)] out [npc.a_moan+] and [npc.verb(keep)] going until the water runs clear. [npc.speech(Deeper. I want the water in me, not just on me.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(push)] water into [npc.her] [npc.pussy] and [npc.verb(rinse)] it out in a few firm strokes, until what was inside is gone. [npc.She] [npc.verb(hiss)] at the sensitivity and [npc.verb(finish)] anyway. [npc.speech(Get it out of me. I am not leaving it in there.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

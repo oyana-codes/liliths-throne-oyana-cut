@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.lilithsthrone.game.Game;
 import com.lilithsthrone.game.PropertyValue;
+import com.lilithsthrone.game.bath.Bath;
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.ArousalLevel;
 import com.lilithsthrone.game.character.attributes.Attribute;
@@ -2722,6 +2723,21 @@ public enum RenderingEngine {
 				+ "</div>";
 	}
 	
+	/**
+	 * Outside sex the left panel draws lust, whose icon is the same as arousal.
+	 * During a bath the real arousal value is what the washes raise, so it is drawn here too.
+	 */
+	private static String bathArousalBar(String idPrefix, GameCharacter character) {
+		if(!Bath.isStarted() || !Bath.isParticipant(character)) {
+			return "";
+		}
+		return getAttributeBar(ArousalLevel.getArousalLevelFromValue(character.getAttributeValue(Attribute.AROUSAL)).getRelatedStatusEffect().getSVGString(character),
+				PresetColour.ATTRIBUTE_AROUSAL,
+				character.getArousal(),
+				100,
+				idPrefix + Attribute.AROUSAL.getName());
+	}
+
 	private static String getCharacterPanelDiv(boolean compact, String idPrefix, GameCharacter character) {
 		StringBuilder panelSB = new StringBuilder();
 		
@@ -2820,6 +2836,8 @@ public enum RenderingEngine {
 							100,
 							idPrefix + Attribute.LUST.getName())
 					
+					+bathArousalBar(idPrefix, character)
+					
 					+getAttributeBar(Attribute.CLEANLINESS.getSVGString(),
 							PresetColour.ATTRIBUTE_CLEANLINESS,
 							character.getAttributeValue(Attribute.CLEANLINESS),
@@ -2845,6 +2863,8 @@ public enum RenderingEngine {
 							character.getLust(),
 							100,
 							idPrefix + Attribute.LUST.getName())
+					
+					+bathArousalBar(idPrefix, character)
 					
 					+getAttributeBar(Attribute.CLEANLINESS.getSVGString(),
 							PresetColour.ATTRIBUTE_CLEANLINESS,

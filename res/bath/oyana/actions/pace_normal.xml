@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>PACE</category>
+	<setsPace>NORMAL</setsPace>
+	<title><![CDATA[Regularly]]></title>
+	<tooltip><![CDATA[Set the default pace to regular. A part you have already washed still offers all three.]]></tooltip>
+	<seconds>0</seconds>
+	<descriptions>
+		<description>
+			<text><![CDATA[[npc.Name] [npc.verb(slow)] [npc.her] hands and [npc.verb(let)] the next pass be an easy one. The heat is still there. [npc.She] [npc.verb(stop)] rushing it. [npc.speech(I will take the rest of this properly.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

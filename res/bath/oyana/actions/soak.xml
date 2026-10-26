@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>SOAK</category>
+	<requiresPosition>SOAKING</requiresPosition>
+	<requiresFacility>BATH</requiresFacility>
+	<title><![CDATA[Soak]]></title>
+	<tooltip><![CDATA[Lie in the water and let it wash whatever is submerged.]]></tooltip>
+	<seconds>120</seconds>
+	<buttonPriority>-10</buttonPriority>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(lie)] back and [npc.verb(let)] the water climb over [npc.her] chest, [npc.her] stomach, and everything lower than [npc.her] hands can comfortably reach. Heat loosens what the day left on [npc.her] skin. [npc.She] [npc.verb(stay)] there and [npc.verb(let)] it work. [npc.speech(Just lie here. The water can have the parts I cannot twist around to.)]]]></text>
+			<text><![CDATA[[npc.Name] [npc.verb(sink)] a little deeper, until the water covers [npc.her] stomach and laps at the parts further back. [npc.She] [npc.verb(breathe)] out and [npc.verb(stop)] trying to reach them. [npc.speech(The water can have those. I will just stay put.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(stretch)] out in the hot water and [npc.verb(sink)] until it covers [npc.herHim] from the chest down. A long [npc.moan] leaves [npc.herHim] as the heat finds every tired place at once. [npc.speech(I am not getting out yet. This is the whole point.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(drop)] deeper into the bath and [npc.verb(let)] it sluice the dirt off, with no interest in twisting around to reach. The water does the work [npc.she] [npc.verb(refuse)] to do by hand. [npc.speech(Soak it off. I am not contorting myself for a wash.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

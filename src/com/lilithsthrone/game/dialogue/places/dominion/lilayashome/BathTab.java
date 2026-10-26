@@ -5,5 +5,7 @@ public enum BathTab {
 	BODY,
 	LOWER,
 	EXTRA,
+	POSITION,
+	PACE,
 	OPTIONS
 }

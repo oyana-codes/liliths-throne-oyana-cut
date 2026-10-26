@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>POSITION</category>
+	<setsPosition>SOAKING</setsPosition>
+	<requiresFacility>BATH</requiresFacility>
+	<title><![CDATA[Get in]]></title>
+	<tooltip><![CDATA[Sink into the bath. The water reaches what the hands cannot. Half a minute.]]></tooltip>
+	<seconds>30</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(step)] into the bath and [npc.verb(sink)] until the water takes the parts [npc.her] hands cannot. Heat closes over [npc.her] stomach and [npc.her] hips. [npc.speech(In. Let the water do the reaching.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(climb)] into the bath and [npc.verb(sink)] with a long, pleased [npc.moan], letting the hot water cover [npc.herHim] as far as it will go. [npc.speech(All the way in. I want to be covered.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(get)] into the bath and [npc.verb(drop)] down into it, letting the water hit the parts [npc.she] cannot be bothered to twist toward. [npc.speech(Soak. I am not climbing over myself to wash.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

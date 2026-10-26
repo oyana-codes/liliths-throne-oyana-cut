@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Stack;
 
+import com.lilithsthrone.game.character.CleanlinessLiving;
 import com.lilithsthrone.game.character.GameCharacter;
 import com.lilithsthrone.game.character.attributes.AbstractAttribute;
 import com.lilithsthrone.game.character.attributes.Attribute;
@@ -1635,6 +1636,10 @@ public class Combat {
 		}
 		
 		attemptedEscape = false;
+
+		for(GameCharacter character : combatants) {
+			CleanlinessLiving.drop(character, 2);
+		}
 		
 		// End turn effects:
 		for(GameCharacter character : combatants) {

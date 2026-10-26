@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>DEEP</category>
+	<area>COCK</area>
+	<title><![CDATA[Clean cock deeper]]></title>
+	<tooltip><![CDATA[Rinse inside the cock. Unavailable while something seals it.]]></tooltip>
+	<seconds>120</seconds>
+	<buttonPriority>5</buttonPriority>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(hold)] [npc.her] [npc.cock] and [npc.verb(rinse)] into the slit, working a thumb along the underside until water comes back out clear. [npc.She] [npc.verb(take)] it slowly. The inside needs it as much as the skin. [npc.speech(The slit too. I can feel something still in there.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(stroke)] [npc.her] [npc.cock] and [npc.verb(work)] hot water into the slit, milking it gently back out. [npc.She] [npc.verb(let)] out [npc.a_moan+] when it starts to run clear. [npc.speech(Inside as well. Gods, that is sensitive.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(squeeze)] along [npc.her] [npc.cock] and [npc.verb(flush)] the slit until nothing sticky comes out, then [npc.verb(rinse)] [npc.herHim] off. [npc.speech(Flush it. I want it empty.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>

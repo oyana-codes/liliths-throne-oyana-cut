@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<bathAction>
+	<category>WASH</category>
+	<area>STOMACH</area>
+	<title><![CDATA[Wash stomach]]></title>
+	<tooltip><![CDATA[Wash the stomach and the small of the back.]]></tooltip>
+	<seconds>120</seconds>
+	<descriptions>
+		<description>
+			<pace>NORMAL</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(wash)] [npc.her] stomach, following the curve of [npc.her] waist, then [npc.verb(reach)] around to the small of [npc.her] back and [npc.verb(rinse)] both. The water finds the crease above [npc.her] hips and takes the sweat with it. [npc.speech(Front, then the small of my back. I always miss that.)]]]></text>
+		</description>
+		<description>
+			<pace>EAGER</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(slide)] both palms over [npc.her] stomach and around [npc.her] waist, letting the hot water follow [npc.her] hands. [npc.She] [npc.verb(sigh)] and [npc.verb(lean)] into it, in no hurry to move lower yet. [npc.speech(Warm all the way down. I could stay on this bit.)]]]></text>
+		</description>
+		<description>
+			<pace>ROUGH</pace>
+			<text><![CDATA[[npc.Name] [npc.verb(scrub)] [npc.her] stomach and the small of [npc.her] back in a few impatient strokes, then [npc.verb(rinse)] and [npc.verb(move)] on. [npc.speech(It is clean. Stop stroking it.)]]]></text>
+		</description>
+	</descriptions>
+</bathAction>
